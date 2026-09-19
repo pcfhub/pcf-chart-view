@@ -38,6 +38,8 @@
     ?host=canvas                         no Web API, no metadata: the browser route
     ?refused=1                           the server refuses the aggregate
     ?hostfilter=1                        a host filter in force (statecode = 0)
+    ?subgrid=1                           under a record: contextInfo + the relationship filter (9 of 12 rows)
+    ?parent=masterid                     the Parent lookup input
     ?zone=-300                           the user's zone offset, minutes
     ?dark=1                              the dark fallbacks
     ?rtl=1
@@ -158,6 +160,10 @@
                 ? { conditions: [{ attributeName: 'statecode', conditionOperator: 0, value: '0' }], filterOperator: 0 }
                 : null,
             userTimeZoneOffset: number('zone') === null ? undefined : number('zone'),
+            contextInfo: params.get('subgrid') === '1'
+                ? { entityTypeName: 'account', entityId: 'c0ffee00-0000-4000-8000-000000000001', entityRecordName: 'Parent 1' }
+                : null,
+            relationshipFilter: params.get('subgrid') === '1' ? { column: 'parentaccountid', id: 'c0ffee00-0000-4000-8000-000000000001' } : null,
             inputs: {
                 chartType: params.get('type') || 'column',
                 aggregate: params.get('aggregate') || 'count',
@@ -168,6 +174,7 @@
                 legend: params.get('legend') || 'auto',
                 title: params.get('title'),
                 height: number('height'),
+                parentLookup: params.get('parent'),
             },
         });
 

@@ -926,6 +926,103 @@ const noTheme = bind({ host: 'canvas', dark: true });
 
 check('a host with no theme still renders, dark or light', typeof renderDeep(noTheme.driven.element) === 'string');
 
+/* ------------------------------------------------ the subgrid's parent */
+
+/*
+ * Measured 2026-09-19 (SPEC.md P2): a subgrid's relationship to its parent
+ * is invisible — `getFilter()` null, `getLinkedEntities()` empty — while
+ * `mode.contextInfo` names the parent record. The rig models exactly that:
+ * `relationshipFilter` narrows the rows and never shows in `getFilter()`;
+ * `contextInfo` carries the record. The control's job is to find the lookup
+ * column: the maker's input, the table's relationships, or the loaded rows.
+ */
+
+const Parent = load('data/parent');
+const P1 = 'c0ffee00-0000-4000-8000-000000000001';
+const onForm = { entityTypeName: 'account', entityId: P1, entityRecordName: 'Parent 1' };
+const parentReading = (over) => ({
+    record: { entityType: 'account', id: P1 },
+    explicit: null,
+    candidates: () => Promise.resolve(['parentaccountid', 'masterid']),
+    confirmed: () => null,
+    ...over,
+});
+
+async function parentChecks() {
+    check('the maker\'s input settles it without a read', (await Parent.resolveParentLookup(parentReading({ explicit: 'cll_parent' }))).by === 'explicit');
+
+    const only = await Parent.resolveParentLookup(parentReading({ candidates: () => Promise.resolve(['parentcustomerid']) }));
+
+    check('one lookup to the parent table is the answer', only.column === 'parentcustomerid' && only.by === 'only-candidate');
+
+    const byRows = await Parent.resolveParentLookup(parentReading({ confirmed: (c) => (c === 'parentaccountid' ? true : null) }));
+
+    check('two lookups: the one every loaded row points at the parent through', byRows.column === 'parentaccountid' && byRows.by === 'rows');
+
+    const unresolved = await Parent.resolveParentLookup(parentReading({}));
+
+    check('two lookups and no row to ask: unresolved, with the candidates named', unresolved.column === null && unresolved.by === 'unresolved' && unresolved.candidates.length === 2);
+
+    const refused = await Parent.resolveParentLookup(parentReading({ candidates: () => Promise.reject(new Error('403')) }));
+
+    check('a refused relationships read is no candidates, never a throw', refused.column === null && refused.by === 'no-candidates');
+
+    const rows = [{ getValue: () => ({ id: { guid: P1.toUpperCase() }, etn: 'account', name: 'x' }) }, { getValue: () => ({ id: { guid: P1 }, etn: 'account', name: 'x' }) }];
+
+    check('rowsConfirm reads an EntityReference\'s guid, whatever its case', Parent.rowsConfirm(rows, 'parentaccountid', P1) === true);
+
+    check('and a row pointing elsewhere, or nowhere, says no', Parent.rowsConfirm([rows[0], { getValue: () => null }], 'parentaccountid', P1) === false && Parent.rowsConfirm([], 'x', P1) === null);
+
+    check('a bare condition on the lookup, the GUID unbraced', Q.parentFilterXml('parentaccountid', P1) === `<filter type='and'><condition attribute='parentaccountid' operator='eq' value='${P1}'/></filter>`);
+
+    /* The bundle, on a subgrid the rig narrows to nine of twelve rows. */
+
+    P.resetCandidateCache();
+
+    const subgrid = bind({ contextInfo: onForm, relationshipFilter: { column: 'parentaccountid', id: P1 }, pageSize: 12 });
+    const route = propsOf(subgrid).server;
+
+    check('on a form the route carries the parent record, and the rows are the subgrid\'s nine', route !== null && route.parent !== null && route.parent.record.id === P1 && propsOf(subgrid).readings.length === 9);
+
+    check('the rows confirm the lookup in the view and cannot speak for one that is not', route.parent.confirmed('parentaccountid') === true && route.parent.confirmed('masterid') === null);
+
+    const candidates = await route.parent.candidates();
+
+    check('the table\'s relationships to the parent table come through the same-origin fetch', candidates.join(',') === 'parentaccountid,masterid', candidates.join(','));
+
+    const resolved = await Parent.resolveParentLookup(route.parent);
+
+    check('and the rows pick the subgrid\'s lookup out of the two', resolved.column === 'parentaccountid' && resolved.by === 'rows');
+
+    const withParent = await subgrid.handle.context.webAPI.retrieveMultipleRecords('account', Q.queryString(Q.aggregateFetchXml(shape(), VIEW, Q.parentFilterXml('parentaccountid', P1))));
+
+    check('the aggregate with the parent condition counts the parent\'s active rows: 7, not the view\'s 10', withParent.entities.reduce((n, r) => n + r.n, 0) === 7, String(withParent.entities.reduce((n, r) => n + r.n, 0)));
+
+    subgrid.handle.setInput('parentLookup', 'cll_custom');
+    subgrid.settle();
+
+    check('the Parent lookup input is read as a logical name and changes the route\'s key', propsOf(subgrid).server.parent.explicit === 'cll_custom' && propsOf(subgrid).server.key.indexOf(':cll_custom') !== -1);
+
+    subgrid.handle.setInput('parentLookup', 'Not A Name');
+    subgrid.settle();
+
+    check('and anything that is not a logical name is ignored', propsOf(subgrid).server.parent.explicit === null);
+
+    const mainGrid = bind({});
+
+    check('a main grid has no parent: no record, no condition', propsOf(mainGrid).server.parent === null);
+
+    const readOnly = bind({ contextInfo: onForm, relationshipFilter: { column: 'parentaccountid', id: P1 }, quirks: { relationshipsStatus: 403 } });
+
+    let refusedCandidates = 'not rejected';
+
+    await propsOf(readOnly).server.parent.candidates().catch((e) => {
+        refusedCandidates = e.message;
+    });
+
+    check('a 403 on the relationships read rejects, which the resolver reads as no candidates', /403/.test(refusedCandidates));
+}
+
 /* ----------------------------------------------- the component, directly */
 
 // The chart itself, with a width the ResizeObserver would have measured.
@@ -999,7 +1096,7 @@ check('and re-rendering does not add another one', time.pending() === afterFirst
 
 disposeAll();
 
-rigChecks().then(report, (error) => {
+rigChecks().then(parentChecks).then(report, (error) => {
     check('the asynchronous rig checks ran at all', false, String((error && error.stack) || error));
     report();
 });

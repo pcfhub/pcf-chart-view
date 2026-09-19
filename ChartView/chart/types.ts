@@ -94,4 +94,6 @@ export interface Settings {
     legend: LegendMode;
     title: string;
     height: number;
+    /** The subgrid's parent lookup as the maker typed it, lower-cased, or `null`. */
+    parentLookup: string | null;
 }

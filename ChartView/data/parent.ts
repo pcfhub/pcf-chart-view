@@ -1,0 +1,132 @@
+/**
+ * The subgrid case: which lookup column relates this table's rows to the
+ * record the form is on.
+ *
+ * **Measured 2026-09-19 (SPEC.md P2): a subgrid's relationship to its parent
+ * is invisible to the control.** `filtering.getFilter()` answers `null`,
+ * `linking.getLinkedEntities()` answers `[]`, and `filtering` carries a
+ * `canDisableRelationshipFilter` the platform keeps to itself — so an
+ * aggregate built from the view alone counts the whole table (31 contacts
+ * under a subgrid showing one account's). The parent record itself *is*
+ * visible: `mode.contextInfo` carries `entityId` and `entityTypeName` on a
+ * form, and neither on a main grid.
+ *
+ * So the column is found three ways, in order, and the fourth is honesty:
+ *
+ *   1. the maker said — `parentLookup`, a logical name;
+ *   2. the table's `ManyToOneRelationships` name exactly one lookup whose
+ *      target is the form's table;
+ *   3. several do, and exactly one of them is in the loaded rows with the
+ *      form's record as its value on every row — a subgrid's rows all point
+ *      at the parent, so the column that does is the relationship;
+ *   4. otherwise the server route is withheld, the caption says *loaded so
+ *      far*, and the console names the candidates and the input that settles
+ *      it.
+ *
+ * Why the third step matters on the first table anyone tries: a contact has
+ * two lookups to account, `parentcustomerid` (the one a subgrid uses) and the
+ * read-only `accountid`, and a view usually carries the first.
+ */
+
+import { isLogicalName } from '../query/fetchXml';
+import { bareId } from '../query/rows';
+
+/** The record a form subgrid sits on. */
+export interface FormRecord {
+    entityType: string;
+    id: string;
+}
+
+/** What the entry point hands the component to resolve the column with. */
+export interface ParentReading {
+    record: FormRecord;
+    /** `parentLookup` as the maker typed it, lower-cased, or `null`. */
+    explicit: string | null;
+    /** The lookups on the chart's table whose target is the form's table, or a rejection. */
+    candidates: () => Promise<string[]>;
+    /**
+     * Whether every loaded row has this column pointing at the form's record:
+     * `true`, `false`, or `null` when the column is not in the dataset or
+     * there are no rows to ask.
+     */
+    confirmed: (column: string) => boolean | null;
+}
+
+export interface ParentResolution {
+    /** The column, or `null` when nothing settles it. */
+    column: string | null;
+    /** How it was settled — for the probe and the console. */
+    by: 'explicit' | 'only-candidate' | 'rows' | 'unresolved' | 'no-candidates';
+    candidates: string[];
+}
+
+/** The four steps, as one promise that never rejects. */
+export async function resolveParentLookup(parent: ParentReading): Promise<ParentResolution> {
+    if (parent.explicit !== null) {
+        return { column: parent.explicit, by: 'explicit', candidates: [] };
+    }
+
+    let candidates: string[] = [];
+
+    try {
+        candidates = (await parent.candidates()).filter((c, i, all) => isLogicalName(c) && all.indexOf(c) === i);
+    } catch {
+        candidates = [];
+    }
+
+    if (candidates.length === 0) {
+        return { column: null, by: 'no-candidates', candidates };
+    }
+
+    if (candidates.length === 1) {
+        return { column: candidates[0], by: 'only-candidate', candidates };
+    }
+
+    const inRows = candidates.filter((c) => parent.confirmed(c) === true);
+
+    if (inRows.length === 1) {
+        return { column: inRows[0], by: 'rows', candidates };
+    }
+
+    return { column: null, by: 'unresolved', candidates };
+}
+
+/**
+ * The rows' answer for one column: every loaded record's lookup is the
+ * form's record. `getValue` on a lookup is an `EntityReference` —
+ * `{ id: { guid }, etn, name }` measured — read leniently, and a column the
+ * dataset does not carry answers `null` rather than `false`.
+ */
+export function rowsConfirm(records: { getValue(name: string): unknown }[], column: string, id: string): boolean | null {
+    if (records.length === 0) {
+        return null;
+    }
+
+    const wanted = bareId(id);
+    let seen = 0;
+
+    for (const record of records) {
+        let raw: unknown;
+
+        try {
+            raw = record.getValue(column);
+        } catch {
+            return null;
+        }
+
+        if (raw === null || raw === undefined) {
+            return false;
+        }
+
+        const ref = raw as { id?: { guid?: string } | string };
+        const candidate = typeof ref === 'object' && ref !== null ? (typeof ref.id === 'object' && ref.id !== null ? ref.id.guid : ref.id) : raw;
+
+        if (bareId(candidate) !== wanted) {
+            return false;
+        }
+
+        seen += 1;
+    }
+
+    return seen > 0 ? true : null;
+}

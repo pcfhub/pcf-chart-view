@@ -1,3 +1,12 @@
+Not yet measured (0.0.3 walkthrough W4). |
+**Measured, with a surprise.** A Choice's `getValue()` came back as the **string** `"1"` on the subgrid (`getFormattedValue` "Default Value"), `null` where blank on the main grid; a Currency as a number (100000). And **the role column need not be in the view**: `customersizecode` was not among *All Contacts*' attributes, arrived on the dataset with `order: -1, visualSizeFactor: -1`, and `getValue` answered it — the platform adds a property-set column to the query. The docs said the opposite and were corrected. |
+Not measured. |
+Not yet measured — needs *Aggregate* = sum on the form (0.0.3 walkthrough W1). |
+Not yet measured — needs a date category on the form (0.0.3 walkthrough W2). |
+**Measured.** `savedquery` answered the system view; the FetchXML carries `savedqueryid` on `<fetch>`, attributes interleaved with a `<link-entity … visible="false">` holding an attribute, and — for *All Accounts* and *All Contacts* — **no `<filter>` at all**. `stripView()` handled all of it. A personal view: not tried. |
+**Measured.** 200, the link-entity kept without its attribute accepted. Rows exactly as the rig models: `n` a number with `n@…FormattedValue` "59" and `n@…AttributeName` "accountid" beside it; `g` the **integer** with `g@…FormattedValue` "Accounting"; **the blank group a row with no `g` at all** (59 accounts with no industry). Elapsed not logged. |
+**Measured, and the wrong way: the relationship is invisible.** `getFilter()` answered `null` on both hosts; `getLinkedEntities()` answered `[]` on the subgrid and, on the main grid, the *view's* own link-entity (the primary-contact outer join). The aggregate under the contacts subgrid counted **31 — every contact in the organisation** — while the subgrid showed one account's. `filtering.canDisableRelationshipFilter` sitting beside `getFilter` names the filter the platform keeps to itself. 0.0.3 resolves the lookup column itself (`data/parent.ts`): the `parentLookup` input, else the table's `ManyToOneRelationships` to the form's table when there is one, else the one the loaded rows all point at the record through, else withheld with the candidates named. Quick-find on the main grid: not yet typed, still unmeasured. |
+**Measured 2026-09-19, both hosts the same surface.** The bag carries `linking`, `getViewId`, `entityDisplayCollectionName`, `_capabilities`, `retrieveRecordCommand`, `getCellImageInfo`, `setSearchSessionId`; `paging` adds `loadPageRange` and `getQueryCancellationToken`; `filtering` adds **`aliasMap`** and **`canDisableRelationshipFilter`**. `getViewId()` answered on both (`65ffaf9a…` All Accounts, `0d5d377b…` All Contacts). `contextInfo`: on the subgrid `{ entityTypeName: "account", entityId: "7de84297-…", entityRecordName: "Adventure Works (sample)" }`; on the main grid `{ entityTypeName: "account", entityRecordName: null }` and **no `entityId`** — so `entityId` is the test for "under a record". |
 # Chart View
 
 A Dataverse view as a bar, column, pie, donut or line chart — grouped by a
@@ -61,8 +70,33 @@ back. **Tag 0.1.0 only after the answers**; each row names what it decides.
 | P8 | `getValue()` for the bound Choice on a dataset record: integer or string; for a Lookup: the `EntityReference` shape; for a date: ISO string. `columns[].dataType` for each | `readingOf()` — measured before on `pcf-data-table` (integer, `{ id: { guid }, etn, name }`); confirmed here on a property-set column | |
 | P9 | On the subgrid, after editing a contact's Choice in its own form and returning: does the dataset fire `updateView` with `loading` true→false, so `refreshToken` bumps and the aggregate re-runs? | the re-aggregate trigger | |
 
+## The 0.0.3 walkthrough — questions for the form
+
+0.0.3 is 0.0.2 with the subgrid route (P2) and `PROBE` still on. Mount it
+on the contacts subgrid and the accounts main grid again, and:
+
+| # | Do | Expect | Answer |
+| --- | --- | --- | --- |
+| W1 | Main grid, *Group by* = Industry, *Value* = Annual Revenue, *Aggregate* = Sum | The console's `P3 aggregate rows` carry `v` as a number; is there a `v@…FormattedValue` with the currency symbol; does the blank-revenue group carry `v`? (P6) | |
+| W2 | Main grid, *Group by* = Created On, *Date grouping* = Month, then Week | `g` is the month number and `y` the year; for week, which week 4 Jan 2026 falls in (P5). The chart draws *Jan 2026*… in order | |
+| W3 | Contacts subgrid, *Parent lookup* blank | `P2 parent lookup` logs `by: "rows"` with candidates `parentcustomerid, accountid` (or `only-candidate`); the caption reads *All N records* with N the subgrid's own count, not 31 | |
+| W4 | Open a contact from the subgrid, change its Choice, save, go back | The chart re-aggregates (the caption's N or a bar changes) without a refresh (P9) | |
+| W5 | Contacts subgrid, *Parent lookup* = `accountid` (the read-only one) | The count may match W3 or not; either way no empty chart | |
+| W6 | Main grid, type into the quick-find box | `P2 filtering.getFilter()` now shows the condition — which `conditionOperator` and `value`; the aggregate's `filterXml` carries it and the caption's N drops with it | |
+| W7 | A two-column section on the form (the chart in one column) | The legend below the chart, nothing cut | |
+
 ## Platform behaviour worth knowing
 
+- **A subgrid's relationship is not on the dataset.** Measured: `getFilter()`
+  `null`, `getLinkedEntities()` `[]`, `canDisableRelationshipFilter` on
+  `filtering` naming what the platform applies itself; `mode.contextInfo`
+  carries the parent's `entityId` and `entityTypeName` on a form and no
+  `entityId` on a main grid. So a control that re-derives the view's rows
+  under a record has to find the lookup column itself — `data/parent.ts`.
+- **A property-set column is fetched whether or not the view selects it.**
+  Measured: `customersizecode` absent from *All Contacts*, on the dataset
+  with `order: -1`, `getValue` answering. A Choice's `getValue` there was the
+  string `"1"`.
 - **`filtering.getFilter()` speaks in `ConditionOperator` numbers**, and
   the PCF typings list the subset a dataset can carry (36 values) pointing at
   the SDK enum for the names. `query/fetchXml.ts` carries the map
@@ -101,10 +135,10 @@ labels rather than option values because a fixture record cannot carry both.
 
 ## Not verified
 
-- Everything under *The 0.0.1 probe*, until the answers are in. The biggest
-  single unknown is **P2**: whether a subgrid's relationship to its parent is
-  visible to the control at all. If it is not, 0.1.0 withholds the server
-  route on a subgrid, and the chart on a form is the loaded page.
+- P5, P6, P7, P9 and the quick-find half of P2 — the 0.0.3 walkthrough.
+- **That `ManyToOneRelationships` for contact → account lists
+  `parentcustomerid` and `accountid`, and that the rows pick the first.**
+  The resolver is measured on the rig; W3 measures it on the form.
 - **The week rule.** `weekOfYear()` follows SQL Server's `DATEPART(week)`
   (Sunday start, week 1 holds 1 January) on the belief that
   `dategrouping='week'` does; both routes agree with each other whichever is

@@ -216,6 +216,12 @@
   <data name="Height_Desc" xml:space="preserve">
     <value>El alto del gráfico en píxeles. Vacío es 280.</value>
   </data>
+  <data name="ParentLookup_Name" xml:space="preserve">
+    <value>Búsqueda principal</value>
+  </data>
+  <data name="ParentLookup_Desc" xml:space="preserve">
+    <value>En una subcuadrícula: la columna de búsqueda de esta tabla que relaciona sus filas con el registro del formulario, p. ej. parentcustomerid. Déjela vacía para que el control la encuentre; establézcala cuando la tabla tenga más de una búsqueda al registro principal.</value>
+  </data>
   <data name="SelectedKey_Name" xml:space="preserve">
     <value>Clave seleccionada</value>
   </data>

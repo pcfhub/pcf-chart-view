@@ -10,7 +10,8 @@
 import { IInputs } from './generated/ManifestTypes';
 import { Aggregate, CategoryKind, ChartType, DateGrouping, LabelMode, LegendMode, MeasureKind, Reading, Roles, Settings, SortBy } from './chart/types';
 import { bucketOf, DateLabels, EN_MONTHS, labelForKey, readDate, wallOf } from './chart/dates';
-import { Filter } from './query/fetchXml';
+import { Filter, isLogicalName } from './query/fetchXml';
+import { FormRecord } from './data/parent';
 import { bareId, numberOf } from './query/rows';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -120,6 +121,7 @@ export function readSettings(context: ComponentFramework.Context<IInputs>): Sett
         legend: oneOf<LegendMode>(p.legend?.raw, ['auto', 'show', 'hide'], 'auto'),
         title: typeof p.title?.raw === 'string' ? p.title.raw.trim() : '',
         height: height !== null && height >= 80 ? Math.min(Math.trunc(height), 2000) : DEFAULT_HEIGHT,
+        parentLookup: typeof p.parentLookup?.raw === 'string' && isLogicalName(p.parentLookup.raw.trim().toLowerCase()) ? p.parentLookup.raw.trim().toLowerCase() : null,
     };
 }
 
@@ -465,4 +467,106 @@ export function metadataLoader(context: ComponentFramework.Context<IInputs>, ent
 
                 return { colors: new Map<number, string>(), order: new Map<number, number>(), primaryId: null };
             });
+}
+
+/* ------------------------------------------------------------------------- */
+/* The subgrid's parent                                                       */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * `mode.contextInfo` — undocumented, read through a cast, never required.
+ * Measured 2026-09-19: on a form subgrid `{ entityTypeName: 'account',
+ * entityId: '7de8…', entityRecordName: 'Adventure Works (sample)' }`; on a
+ * main grid `{ entityTypeName: 'account', entityRecordName: null }` with no
+ * `entityId` at all. So `entityId` is the test for "under a record".
+ */
+export function formRecordOf(context: ComponentFramework.Context<IInputs>): FormRecord | null {
+    const info = (context.mode as any)?.contextInfo;
+    const id = bareId(info?.entityId);
+    const entityType = typeof info?.entityTypeName === 'string' ? info.entityTypeName.toLowerCase() : '';
+
+    return id !== '' && entityType !== '' ? { entityType, id } : null;
+}
+
+/**
+ * `page.getClientUrl()` first — not in the typings, present on a model-driven
+ * form, and the only honest answer on an on-premises organisation whose URL
+ * carries the organisation in the path — then the `Xrm` global, then `null`.
+ * Same order as `pcf-data-table` and `pcf-hierarchy-view`.
+ */
+export function lookupClientUrl(context: ComponentFramework.Context<IInputs>): string | null {
+    const page = (context as any).page;
+
+    try {
+        const fromPage = typeof page?.getClientUrl === 'function' ? page.getClientUrl() : undefined;
+
+        if (typeof fromPage === 'string' && fromPage !== '') {
+            return fromPage.replace(/\/$/, '');
+        }
+    } catch {
+        // Fall through to the global.
+    }
+
+    try {
+        const xrm = (globalThis as any).Xrm;
+        const fromGlobal = xrm?.Utility?.getGlobalContext?.()?.getClientUrl?.();
+
+        if (typeof fromGlobal === 'string' && fromGlobal !== '') {
+            return fromGlobal.replace(/\/$/, '');
+        }
+    } catch {
+        // No global either.
+    }
+
+    return null;
+}
+
+/** One relationships read per table and target, for the life of the page. */
+const candidateCache = new Map<string, Promise<string[]>>();
+
+/** For the suite: forget every cached read. */
+export const resetCandidateCache = (): void => candidateCache.clear();
+
+/**
+ * The lookups on `entity` whose target is `target`, from a same-origin fetch
+ * of `EntityDefinitions(…)/ManyToOneRelationships` — the route
+ * `pcf-data-table` measured for a lookup's bind key, because
+ * `context.webAPI` cannot address `EntityDefinitions`. A failure of any kind
+ * rejects, and the resolver reads a rejection as "no candidates".
+ */
+export function parentCandidates(clientUrl: string | null, entity: string, target: string): Promise<string[]> {
+    if (clientUrl === null || !isLogicalName(entity) || !isLogicalName(target)) {
+        return Promise.reject(new Error('no organisation URL to read the relationships from'));
+    }
+
+    const key = `${clientUrl}|${entity}|${target}`;
+    const cached = candidateCache.get(key);
+
+    if (cached) {
+        return cached;
+    }
+
+    const url =
+        `${clientUrl}/api/data/v9.2/EntityDefinitions(LogicalName='${entity}')/ManyToOneRelationships`
+        + `?$select=ReferencingAttribute,ReferencedEntity&$filter=ReferencedEntity eq '${target}'`;
+
+    const read = fetch(url, {
+        headers: { Accept: 'application/json', 'OData-MaxVersion': '4.0', 'OData-Version': '4.0' },
+        credentials: 'same-origin',
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error(`Relationships for ${entity} could not be read (${response.status}).`);
+        }
+
+        return response.json().then((body: { value?: { ReferencingAttribute?: unknown; ReferencedEntity?: unknown }[] }) =>
+            (Array.isArray(body?.value) ? body.value : [])
+                .filter((row) => typeof row?.ReferencingAttribute === 'string' && String(row.ReferencedEntity ?? target).toLowerCase() === target)
+                .map((row) => String(row.ReferencingAttribute).toLowerCase()),
+        );
+    });
+
+    candidateCache.set(key, read);
+    read.catch(() => candidateCache.delete(key));
+
+    return read;
 }

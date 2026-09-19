@@ -4,7 +4,8 @@ import { ChartData, Group, Reading, Roles, Settings } from '../chart/types';
 import { finishGroups, groupReadings, NEUTRAL, OTHER_KEY, PALETTE, percentOf, BLANK_KEY } from '../chart/aggregate';
 import { Arc, AxisLayout, barLayout, columnLayout, lineLayout, pieLayout, px, TextAt } from '../chart/geometry';
 import { DateLabels } from '../chart/dates';
-import { AggregateShape, effectiveAggregate } from '../query/fetchXml';
+import { AggregateShape, effectiveAggregate, parentFilterXml } from '../query/fetchXml';
+import { ParentReading, resolveParentLookup } from '../data/parent';
 import { Row, toReadings } from '../query/rows';
 import { loadAggregate, readViewFetchXml, Refusal, requestXml } from '../data/ChartData';
 import { compactNumber, MetadataReading, primaryIdOf, WebApiReader } from '../platform';
@@ -21,6 +22,8 @@ export interface ServerRoute {
     entity: string;
     viewId: string;
     filterXml: string;
+    /** The subgrid's parent, to be resolved to a lookup column before the query; `null` on a main grid. */
+    parent: ParentReading | null;
     key: string;
 }
 
@@ -167,11 +170,50 @@ export const ChartViewControl: React.FC<IProps> = (props) => {
 
         setServer((s) => ({ ...s, pending: true }));
 
-        readViewFetchXml(route.api, route.viewId)
-            .then((viewXml) => {
+        /*
+         * The subgrid's relationship first, because it decides whether there
+         * is a query to send at all: a chart under a record that cannot say
+         * which lookup relates the rows would count the whole table.
+         */
+        const parent = route.parent;
+        const parentStep: Promise<string | null> = parent
+            ? resolveParentLookup(parent).then((resolution) => {
+                props.onProbe?.('P2 parent lookup', resolution);
+
+                if (resolution.column === null) {
+                    console.warn(
+                        `ChartView: on a subgrid of ${route.entity} under ${parent.record.entityType}, the lookup relating the rows to the record could not be settled`
+                        + (resolution.candidates.length > 0 ? ` (candidates: ${resolution.candidates.join(', ')})` : ' (no lookup to the parent table was found)')
+                        + '; the loaded rows are shown. Set the Parent lookup property to the column.',
+                    );
+
+                    return null;
+                }
+
+                return parentFilterXml(resolution.column, parent.record.id);
+            })
+            : Promise.resolve('');
+
+        parentStep
+            .then((parentXml) => {
                 if (!alive) {
                     return null;
                 }
+
+                if (parentXml === null) {
+                    setServer({ key: route.key, rows: null, refused: null, unavailable: true, pending: false });
+
+                    return null;
+                }
+
+                return readViewFetchXml(route.api, route.viewId).then((viewXml) => ({ viewXml, parentXml }));
+            })
+            .then((step) => {
+                if (!alive || step === null) {
+                    return null;
+                }
+
+                const { viewXml, parentXml } = step;
 
                 props.onProbe?.('P4 view fetchxml', { viewId: route.viewId, viewXml });
 
@@ -190,7 +232,7 @@ export const ChartViewControl: React.FC<IProps> = (props) => {
                     return null;
                 }
 
-                const request = { shape, viewXml, filterXml: route.filterXml };
+                const request = { shape, viewXml, filterXml: route.filterXml + parentXml };
 
                 props.onProbe?.('P3 aggregate fetchxml', requestXml(request));
 
@@ -216,7 +258,21 @@ export const ChartViewControl: React.FC<IProps> = (props) => {
     }, [routeKey, props.refreshToken, metaSettled, primaryId]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const serverCurrent = route !== null && server.key === route.key;
-    const useServerRows = serverCurrent && server.rows !== null;
+
+    /*
+     * A server answer of no groups under a page that has rows is a wrong
+     * query, not an empty view — the page is always a subset of the view.
+     * The one way to get there is a Parent lookup naming a column the
+     * rows do not relate through. The loaded rows are the honest number.
+     */
+    const contradicted = serverCurrent && server.rows !== null && server.rows.length === 0 && props.readings.length > 0;
+    const useServerRows = serverCurrent && server.rows !== null && !contradicted;
+
+    React.useEffect(() => {
+        if (contradicted) {
+            console.warn(`ChartView: the server found no records for the chart's query while the dataset holds ${props.readings.length}; the loaded rows are shown. On a subgrid, check the Parent lookup property.`);
+        }
+    }, [contradicted]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const data: ChartData = React.useMemo(() => {
         const readings = useServerRows

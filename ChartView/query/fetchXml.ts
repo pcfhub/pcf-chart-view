@@ -155,6 +155,14 @@ export function aggregateFetchXml(shape: AggregateShape, viewXml: string | null,
 }
 
 /**
+ * The subgrid's relationship as a condition: the lookup on this table equal
+ * to the form's record. Appended inside the root entity beside the runtime
+ * filter. A GUID goes in bare; the server takes either spelling.
+ */
+export const parentFilterXml = (column: string, id: string): string =>
+    `<filter type='and'><condition attribute='${column}' operator='eq' value='${escapeXml(id)}'/></filter>`;
+
+/**
  * Whether the FetchXML is URL-encoded inside `?fetchXml=`. Measured on the
  * Accounts form 2026-09-17 (pcf-hierarchy-view P1): the platform accepts
  * both. Raw, as documented, and in one place.

@@ -15,6 +15,13 @@ control can spell in FetchXML. Missing any of them, the control groups the
 loaded page rather than guess. Open the browser console: the control logs one
 warning naming which.
 
+## On a subgrid the caption says "loaded so far" and the console names candidates.
+
+The table has more than one lookup to the form's table and none of them is
+in the view for the loaded rows to confirm. Set **Parent lookup** to the
+column the subgrid relates by — for contacts under an account,
+`parentcustomerid`.
+
 ## The caption says the server could not aggregate this view.
 
 The aggregate was sent and refused. The usual reasons: the view matches more

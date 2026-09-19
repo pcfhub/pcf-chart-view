@@ -12,7 +12,7 @@
   -->
   <control namespace="PCFHub"
            constructor="ChartView"
-           version="0.0.2"
+           version="0.0.3"
            display-name-key="ChartView_Name"
            description-key="ChartView_Desc"
            control-type="virtual">
@@ -252,6 +252,26 @@
     <property name="title"
               display-name-key="Title_Name"
               description-key="Title_Desc"
+              of-type="SingleLine.Text"
+              usage="input"
+              required="false" />
+
+    <!--
+      ON A SUBGRID, THE LOOKUP THAT RELATES THE ROWS TO THE FORM'S RECORD.
+
+      Measured 2026-09-19 (SPEC.md P2): a subgrid's relationship to its parent
+      is invisible to a code component — filtering.getFilter() is null,
+      linking.getLinkedEntities() is empty — so an aggregate over the view
+      alone counts the whole table. The control finds the column itself when
+      the table has exactly one lookup to the form's table, or when the
+      loaded rows single one out; this input settles the case where it
+      cannot (a custom table with two lookups to the parent and neither in
+      the view). A logical name, e.g. parentcustomerid. Ignored on a main
+      grid and in canvas, where there is no parent record.
+    -->
+    <property name="parentLookup"
+              display-name-key="ParentLookup_Name"
+              description-key="ParentLookup_Desc"
               of-type="SingleLine.Text"
               usage="input"
               required="false" />

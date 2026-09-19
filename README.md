@@ -57,6 +57,7 @@ by design. See `docs/limitations.md` for the rest of what it does not do.
 | `legend` | Enum `auto` \| `show` \| `hide` | `auto` | A legend on a pie or donut only, or always, or never |
 | `title` | SingleLine.Text | — | The heading; empty uses the view's name |
 | `height` | Whole.None | — (280) | The chart's height in px; the width is the container's |
+| `parentLookup` | SingleLine.Text | — | On a subgrid, the lookup relating the rows to the form's record (`parentcustomerid`). Blank: found from the table's relationships or the loaded rows |
 | `selectedKey` | SingleLine.Text, output | | The clicked group's raw value — a Choice's number, a Lookup's GUID, the text, a date bucket such as `2026-03`; `""` when none |
 | `selectedLabel` | SingleLine.Text, output | | The clicked group's label; `""` when none |
 

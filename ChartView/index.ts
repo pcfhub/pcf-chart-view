@@ -16,6 +16,8 @@ import {
     webApiOf,
 } from './platform';
 import { filterToFetchXml } from './query/fetchXml';
+import { formRecordOf, lookupClientUrl, parentCandidates } from './platform';
+import { ParentReading, rowsConfirm } from './data/parent';
 
 type DataSet = ComponentFramework.PropertyTypes.DataSet;
 
@@ -179,9 +181,40 @@ export class ChartView implements ComponentFramework.ReactControl<IInputs, IOutp
         }
 
         const viewId = viewIdOf(dataset);
-        const key = [entity, roles.category, roles.categoryKind, roles.value ?? '', settings.aggregate, settings.dateGrouping, viewId, filter.xml].join('|');
+        const parent = this.parentReading(context, dataset, entity, settings.parentLookup);
+        const key = [
+            entity, roles.category, roles.categoryKind, roles.value ?? '', settings.aggregate, settings.dateGrouping, viewId, filter.xml,
+            parent ? `${parent.record.entityType}:${parent.record.id}:${parent.explicit ?? ''}` : '',
+        ].join('|');
 
-        return { api, entity, viewId, filterXml: filter.xml, key };
+        return { api, entity, viewId, filterXml: filter.xml, parent, key };
+    }
+
+    /**
+     * The subgrid's parent, or `null` on a main grid and in canvas. Measured
+     * 2026-09-19: the relationship itself is invisible (`getFilter()` null,
+     * `getLinkedEntities()` empty), the parent record is not — so the
+     * component resolves the lookup column from the maker's input, the
+     * table's relationships, or the loaded rows, in `data/parent.ts`.
+     */
+    private parentReading(context: ComponentFramework.Context<IInputs>, dataset: DataSet, entity: string, explicit: string | null): ParentReading | null {
+        const record = formRecordOf(context);
+
+        if (!record) {
+            return null;
+        }
+
+        const clientUrl = lookupClientUrl(context);
+        const columns = new Set((dataset.columns ?? []).map((column) => column.name));
+        const records = (dataset.sortedRecordIds ?? []).map((id) => dataset.records[id]).filter((r): r is DataSet['records'][string] => Boolean(r));
+
+        return {
+            record,
+            explicit,
+            candidates: (): Promise<string[]> => parentCandidates(clientUrl, entity, record.entityType),
+            // A column the dataset does not carry answers null, not false.
+            confirmed: (column: string): boolean | null => (columns.has(column) ? rowsConfirm(records, column, record.id) : null),
+        };
     }
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -233,7 +266,15 @@ export class ChartView implements ComponentFramework.ReactControl<IInputs, IOutp
             this.log('P8 first records', sample);
         }
 
-        this.log('P3 server route', server ? { entity: server.entity, viewId: server.viewId, filterXml: server.filterXml } : null);
+        this.log('P3 server route', server ? { entity: server.entity, viewId: server.viewId, filterXml: server.filterXml, parent: server.parent?.record ?? null } : null);
+
+        // What the platform keeps to itself about the relationship — read once, for the record.
+        this.log('P2 filtering extras', {
+            aliasMap: ds.filtering?.aliasMap ?? 'absent',
+            canDisableRelationshipFilter: ds.filtering?.canDisableRelationshipFilter ?? 'absent',
+            capabilities: ds._capabilities ?? 'absent',
+            entityDisplayCollectionName: ds.entityDisplayCollectionName ?? 'absent',
+        });
     }
 
     /** One line per distinct payload, so a repaint does not repeat the answers. */

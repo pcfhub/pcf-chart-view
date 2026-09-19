@@ -97,6 +97,12 @@
                 ? { conditions: [{ attributeName: 'statecode', conditionOperator: 0, value: '0' }], filterOperator: 0 }
                 : null,
             viewId: document.getElementById('harness-noviewid').checked ? null : undefined,
+            contextInfo: document.getElementById('harness-subgrid').checked
+                ? { entityTypeName: 'account', entityId: 'c0ffee00-0000-4000-8000-000000000001', entityRecordName: 'Parent 1' }
+                : null,
+            relationshipFilter: document.getElementById('harness-subgrid').checked
+                ? { column: 'parentaccountid', id: 'c0ffee00-0000-4000-8000-000000000001' }
+                : null,
             viewsReadable: !document.getElementById('harness-viewsunreadable').checked,
             aggregateRefused: document.getElementById('harness-aggrefused').checked,
             userTimeZoneOffset: document.getElementById('harness-zone').value === '' ? undefined : Number(document.getElementById('harness-zone').value),

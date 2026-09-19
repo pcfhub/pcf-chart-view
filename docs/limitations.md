@@ -25,10 +25,12 @@ Each of these was chosen, not left.
   caption reads *loaded so far* whenever the source has more rows than the
   dataset holds.
 
-- **Both bound columns must be in the view.** The roles are read through the
-  dataset, which carries only the view's columns. A role bound to a column
-  the view does not select is blank on the browser route. Add the column to
-  the view; it can be hidden there.
+- **On a subgrid the relationship is inferred, not read.** The platform does
+  not expose a subgrid's relationship to a code component (measured:
+  `getFilter()` is null, `getLinkedEntities()` is empty), so the control
+  finds the lookup column itself — from the table's relationships, the
+  loaded rows, or the **Parent lookup** property — and withholds the server
+  route when it cannot. See *Model-driven apps → On a subgrid*.
 
 - **A blank *Value* counts, whatever *Aggregate* says.** *Sum* of nothing is
   not a chart. Rather than draw nothing, the control counts records and the

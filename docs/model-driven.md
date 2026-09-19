@@ -31,12 +31,11 @@ way the platform's own grouping buckets it.
 | Group by | A Choice, Yes/No, Lookup, text or date column. One bar, slice or point per distinct value. | Yes |
 | Value | A whole number, decimal, float or currency column. What *Sum*, *Average*, *Minimum* and *Maximum* work on. | No |
 
-:::callout{type=warning}
-**Both columns must be in the view.** The roles are read through the
-dataset, so a role bound to a column the view does not select arrives empty
-— the browser route then charts one blank group, and the server route
-aggregates the column it was told, which is the number you wanted but only
-on one of the two routes. Add the column to the view.
+:::callout{type=info}
+**The columns need not be in the view.** Measured 2026-09-19: a role bound
+to a column the view does not select is fetched by the platform anyway (it
+arrives on the dataset with `order: -1`), so the chart reads it on both
+routes. Adding it to the view changes nothing for the chart.
 :::
 
 ## Where the numbers come from
@@ -61,6 +60,26 @@ view whose definition cannot be read — the control falls back to grouping
 the records the dataset has loaded, and the caption says *The N records
 loaded so far* or *The server could not aggregate this view*, so a number
 is never shown as the whole when it is not.
+
+## On a subgrid
+
+A subgrid shows one record's related rows, and the platform keeps that
+relationship to itself — a code component cannot read it. So under a record
+the control finds the **lookup column** that relates the rows to it, and adds
+`that column = this record` to the aggregate:
+
+1. **Parent lookup**, if you set it — the column's logical name, such as
+   `parentcustomerid`.
+2. Otherwise the table's own relationships: the one lookup whose target is
+   the form's table, when there is only one.
+3. When there are several (a contact has `parentcustomerid` and `accountid`,
+   both to account), the one every loaded row points at this record through.
+4. Otherwise the server route is withheld, the caption reads *loaded so
+   far*, and the browser console names the candidates. Set **Parent lookup**.
+
+A *Parent lookup* naming the wrong column makes the server answer nothing
+while the rows are plainly there; the control then shows the loaded rows and
+says so in the console rather than drawing an empty chart.
 
 ## A chart by month
 
