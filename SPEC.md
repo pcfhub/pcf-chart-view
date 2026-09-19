@@ -134,7 +134,10 @@ this control's own: the probe table, the week rule, and the roles.
 
 `dev/preview.html` served by `npm run harness`, shot through headless Chrome
 over the DevTools protocol (`Emulation.setDeviceMetricsOverride` for the
-width — a headless window will not go below about 500 px — then
-`Page.captureScreenshot` at scale 2). `?fixture=demo&type=…` for the
+width, then `Page.captureScreenshot` at scale 2). The flag route the skill
+describes (`--window-size=300,…` with `--force-device-scale-factor=2`) laid
+the page out wider than 300 on this machine — the legend beside the chart
+and the caption cut — while the 256 px logo shot came out right; the cause
+was not chased, and the override lays out at the width asked. `?fixture=demo&type=…` for the
 published ones; `?type=…` alone for the rig's fixture, which shows the
 server route's caption.
