@@ -208,6 +208,7 @@
         ChartView_Blank: "(blank)",
         ChartView_CaptionAll: "All {0} records",
         ChartView_CaptionLoaded: "The {0} records loaded so far",
+        ChartView_CaptionViewGrid: "All {0} records in the view · the grid shows {1}",
         ChartView_CaptionRefused: "The server could not aggregate this view; the {0} records loaded so far are shown.",
         ChartView_Measure_Count: "Number of records",
         ChartView_Measure_Sum: "Sum of {0}",

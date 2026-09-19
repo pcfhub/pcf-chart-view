@@ -20,6 +20,12 @@ Each of these was chosen, not left.
   has loaded with the caption saying so. Narrow the view, or accept the
   loaded page as the number.
 
+- **The grid's quick-find does not narrow the chart.** The platform applies
+  it to the grid without reporting it to a code component (measured:
+  `getFilter()` stays null), so the chart keeps aggregating the view. The
+  caption says both counts when they differ — *All 60 records in the view ·
+  the grid shows 12* — rather than let one stand for the other.
+
 - **Canvas apps chart the loaded records.** A canvas app offers a code
   component no Web API, so there is no route to the server's aggregate. The
   caption reads *loaded so far* whenever the source has more rows than the

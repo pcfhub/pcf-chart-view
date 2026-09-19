@@ -63,9 +63,21 @@ export class ChartView implements ComponentFramework.ReactControl<IInputs, IOutp
 
     private probed = new Set<string>();
 
-    public init(_context: ComponentFramework.Context<IInputs>, notifyOutputChanged: () => void): void {
+    public init(context: ComponentFramework.Context<IInputs>, notifyOutputChanged: () => void): void {
         // No container: a virtual control never receives one.
         this.notifyOutputChanged = notifyOutputChanged;
+
+        /*
+         * Ask for the width, because the measured one is not always the
+         * given one. Measured on the Accounts main grid 2026-09-19 (W2): the
+         * host there is shrink-to-fit, so the root — rendered without its
+         * SVG on the first pass — measured the width of its own caption,
+         * ~380 px of a ~1050 px grid, and the SVG then locked it. A form
+         * section is a block parent and measures true. `allocatedWidth` is
+         * -1 until this call and the grid's real width after it; the
+         * component takes the larger of the two.
+         */
+        context.mode.trackContainerResize(true);
     }
 
     public updateView(context: ComponentFramework.Context<IInputs>): React.ReactElement {
@@ -120,6 +132,8 @@ export class ChartView implements ComponentFramework.ReactControl<IInputs, IOutp
             isRTL: context.userSettings.isRTL,
             disabled: context.mode.isControlDisabled,
             visible: context.mode.isVisible,
+            allocatedWidth: context.mode.allocatedWidth,
+            gridCount: gridCountOf(dataset),
             onProbe: PROBE ? (label, payload): void => this.log(label, payload) : undefined,
         };
 
@@ -297,6 +311,21 @@ export class ChartView implements ComponentFramework.ReactControl<IInputs, IOutp
         console.info(`[ChartView probe] ${label}`, payload);
     }
     /* eslint-enable @typescript-eslint/no-explicit-any */
+}
+
+/**
+ * `paging.totalResultCount` — the rows the *grid* holds after whatever the
+ * host filtered it to, which the control cannot see (a quick-find, measured
+ * 2026-09-19 W6; an unrelated subgrid). `-1` is "uncounted" and answers
+ * `null`; so does a host with no paging.
+ */
+function gridCountOf(dataset: DataSet): number | null {
+    try {
+        const total = dataset.paging?.totalResultCount;
+        return typeof total === 'number' && total >= 0 ? total : null;
+    } catch {
+        return null;
+    }
 }
 
 /** `getTargetEntityType()`, or `''` on a host that cannot answer. */

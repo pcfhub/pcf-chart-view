@@ -3,7 +3,7 @@ import { FluentProvider, webDarkTheme, webLightTheme } from '@fluentui/react-com
 import { ChartData, Group, Reading, Roles, Settings } from '../chart/types';
 import { finishGroups, groupReadings, NEUTRAL, OTHER_KEY, PALETTE, percentOf, BLANK_KEY } from '../chart/aggregate';
 import { Arc, AxisLayout, barLayout, columnLayout, lineLayout, pieLayout, px, TextAt } from '../chart/geometry';
-import { DateLabels } from '../chart/dates';
+import { DateLabels, labelForKey } from '../chart/dates';
 import { AggregateShape, effectiveAggregate, parentFilterXml } from '../query/fetchXml';
 import { ParentReading, resolveParentLookup } from '../data/parent';
 import { Row, toReadings } from '../query/rows';
@@ -54,6 +54,10 @@ export interface IProps {
     isRTL: boolean;
     disabled: boolean;
     visible: boolean;
+    /** `mode.allocatedWidth`: -1 until asked, the host's width after; a floor under the measured one. */
+    allocatedWidth: number;
+    /** The rows the grid holds after the host's own filtering, or `null` when uncounted. */
+    gridCount: number | null;
     /** The probe's log, in a 0.0.x build; `undefined` in a release. */
     onProbe?: (label: string, payload: unknown) => void;
 }
@@ -133,7 +137,9 @@ function useMetadata(loader: (() => Promise<MetadataReading>) | null, key: strin
 
 export const ChartViewControl: React.FC<IProps> = (props) => {
     const rootRef = React.useRef<HTMLDivElement>(null);
-    const width = useWidth(rootRef);
+    const measured = useWidth(rootRef);
+    // A shrink-to-fit host measures the caption, not the grid — see init().
+    const width = Math.max(measured, props.allocatedWidth > 0 ? props.allocatedWidth : 0);
     const { meta, settled: metaSettled } = useMetadata(props.metadata, props.metadataKey);
     const [server, setServer] = React.useState<ServerState>({ key: '', rows: null, refused: null, unavailable: false, pending: false });
     const [hover, setHover] = React.useState<string | null>(null);
@@ -179,6 +185,11 @@ export const ChartViewControl: React.FC<IProps> = (props) => {
         const parentStep: Promise<string | null> = parent
             ? resolveParentLookup(parent).then((resolution) => {
                 props.onProbe?.('P2 parent lookup', resolution);
+
+                if (resolution.by === 'unrelated') {
+                    // The rows deny every lookup to the parent: the subgrid shows the whole view, and so does the chart.
+                    return '';
+                }
 
                 if (resolution.column === null) {
                     console.warn(
@@ -369,6 +380,7 @@ export const ChartViewControl: React.FC<IProps> = (props) => {
                             <Chart
                                 data={data}
                                 settings={settings}
+                                shortLabel={roles.categoryKind === 'date' ? (key): string => labelForKey(key, props.dateLabels, true) : undefined}
                                 width={svgW}
                                 height={svgH}
                                 formatValue={props.formatValue}
@@ -403,7 +415,15 @@ function captionOf(data: ChartData, props: IProps, getString: (id: string) => st
 
     switch (data.source) {
         case 'server':
-            return fmt(getString('ChartView_CaptionAll'), n);
+            /*
+             * The grid may hold fewer rows than the view has — a quick-find
+             * the host applied and the control cannot see (measured 2026-09-19
+             * W6), a subgrid related in a way the control did not find. Say
+             * both numbers rather than let "All 60" stand over a grid of 12.
+             */
+            return props.gridCount !== null && props.gridCount !== n
+                ? fmt(getString('ChartView_CaptionViewGrid'), n, props.gridCount)
+                : fmt(getString('ChartView_CaptionAll'), n);
         case 'client-refused':
             return fmt(getString('ChartView_CaptionRefused'), n);
         case 'client':
@@ -417,6 +437,8 @@ function captionOf(data: ChartData, props: IProps, getString: (id: string) => st
 interface ChartProps {
     data: ChartData;
     settings: Settings;
+    /** A shorter label for a narrow slot — a date's `Feb '22` — or `undefined` when there is none. */
+    shortLabel?: (key: string) => string;
     width: number;
     height: number;
     formatValue: (v: number) => string;
@@ -505,10 +527,10 @@ export const Chart: React.FC<ChartProps> = (p) => {
     }
 
     const layout: AxisLayout = settings.chartType === 'bar'
-        ? barLayout(data.groups, width, height, tickFormat)
+        ? barLayout(data.groups, width, height, tickFormat, p.shortLabel)
         : settings.chartType === 'line'
-            ? lineLayout(data.groups, width, height, tickFormat)
-            : columnLayout(data.groups, width, height, tickFormat);
+            ? lineLayout(data.groups, width, height, tickFormat, p.shortLabel)
+            : columnLayout(data.groups, width, height, tickFormat, p.shortLabel);
     const vertical = settings.chartType !== 'bar';
 
     return (

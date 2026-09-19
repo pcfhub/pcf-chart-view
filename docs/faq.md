@@ -30,6 +30,13 @@ column is one FetchXML cannot group (a multi-select choice, a file); or a
 linked table in the view's definition the user cannot read. The console
 warning carries the server's own message.
 
+## The caption says "the grid shows N" beside the view's count.
+
+The grid holds fewer rows than the view has: the quick-find box, which the
+platform applies to the grid and does not report to the chart; or a subgrid
+related to its record in a way the chart could not find. The first number
+is the view's, the second is what the grid shows.
+
 ## Can I group by two columns, or show two values?
 
 No — one group-by and one measure, by design. See *Limitations*.

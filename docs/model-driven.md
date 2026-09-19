@@ -49,9 +49,11 @@ whole view, and the caption under the title reads *All N records*:
 2. The group-by column is added as a `groupby` attribute — with a
    `dategrouping` for a date — and the value column as a `sum`, `avg`,
    `min` or `max`, beside a `count` of the records in each group.
-3. Whatever the user has narrowed the view to since it loaded — a column
-   filter, the quick-find box — is appended as a filter, so the chart agrees
-   with the rows under it.
+3. Whatever the dataset reports the user has narrowed the view to is
+   appended as a filter. **The grid's quick-find box is not reported**
+   (measured 2026-09-19), so the chart stays the view's while the grid
+   narrows — and the caption then says both: *All 60 records in the view ·
+   the grid shows 12*.
 
 The query runs as the signed-in user through the Web API, subject to their
 privileges, and the server's own ceiling of **50,000 records per aggregate**.
@@ -76,6 +78,11 @@ the control finds the **lookup column** that relates the rows to it, and adds
    both to account), the one every loaded row points at this record through.
 4. Otherwise the server route is withheld, the caption reads *loaded so
    far*, and the browser console names the candidates. Set **Parent lookup**.
+
+A subgrid configured **without *Show related records*** lists the whole
+table under the record. The loaded rows then point at many parents, every
+candidate is ruled out, and the chart aggregates the whole view — which is
+what that subgrid shows.
 
 A *Parent lookup* naming the wrong column makes the server answer nothing
 while the rows are plainly there; the control then shows the loaded rows and
@@ -112,8 +119,14 @@ selection.
 
 ## Sizing
 
-The chart fills the width it is given, measured as the section resizes, and
-takes its **Height** from the property (280 px unset). A form section
+The chart fills the width it is given — the wider of what it measures and
+what the host allocates, because a main grid measures narrow (2026-09-19)
+— and takes its **Height** from the property (280 px unset). A form section
 allocates no height to a control, which is why the number has to come from
-somewhere. Under about 420 px wide — a two-column section — the legend moves
-from beside the chart to below it.
+somewhere. Under about 420 px wide the legend moves from beside the chart to
+below it.
+
+To put the chart in **half a section**, the section's own layout decides:
+in the form designer set the section to two columns and place the subgrid
+in one of them. There is nothing to bind to a column — the chart is the
+subgrid's control, wherever the subgrid sits.

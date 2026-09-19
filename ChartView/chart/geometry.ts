@@ -92,6 +92,23 @@ export interface AxisLayout {
     plot: { x: number; y: number; w: number; h: number };
 }
 
+/**
+ * The text for a slot: the label whole when it fits, else its short form
+ * whole when that fits, else the label cut with an ellipsis. A short form
+ * is what a date has (`Feb '22` for *Feb 2022*) and a name does not.
+ */
+export function fitLabel(text: string, short: string | undefined, maxWidth: number): string {
+    if (text.length * CHAR_W <= maxWidth) {
+        return text;
+    }
+
+    if (short !== undefined && short !== text && short.length * CHAR_W <= maxWidth) {
+        return short;
+    }
+
+    return fitText(short !== undefined && short.length < text.length ? short : text, maxWidth);
+}
+
 /** Cut a label to a width, with an ellipsis, by the character estimate. */
 export function fitText(text: string, maxWidth: number): string {
     const chars = Math.max(1, Math.floor(maxWidth / CHAR_W));
@@ -111,7 +128,7 @@ const widest = (labels: string[]): number => labels.reduce((w, l) => Math.max(w,
  * Bars take 70% of a slot, and a slot narrower than a character shows no
  * label rather than a pile of glyphs.
  */
-export function columnLayout(groups: Group[], width: number, height: number, formatTick: (v: number) => string): AxisLayout {
+export function columnLayout(groups: Group[], width: number, height: number, formatTick: (v: number) => string, shortLabel?: (key: string) => string): AxisLayout {
     const values = groups.map((g) => g.value);
     const ticks = niceTicks(Math.min(0, ...values), Math.max(0, ...values));
     const tickLabels = ticks.map(formatTick);
@@ -141,7 +158,7 @@ export function columnLayout(groups: Group[], width: number, height: number, for
             key: g.key,
             x: plot.x + i * slot + slot / 2,
             y: plot.y + plot.h + LINE_H,
-            text: slot < CHAR_W * 2 ? '' : fitText(g.label, slot - 4),
+            text: slot < CHAR_W * 2 ? '' : fitLabel(g.label, shortLabel && !g.blank && !g.other ? shortLabel(g.key) : undefined, slot - 4),
             anchor: 'middle' as const,
             maxWidth: slot - 4,
         })),
@@ -161,7 +178,7 @@ export function columnLayout(groups: Group[], width: number, height: number, for
  * (capped at a third of the width, cut beyond that); the value axis runs
  * along the bottom.
  */
-export function barLayout(groups: Group[], width: number, height: number, formatTick: (v: number) => string): AxisLayout {
+export function barLayout(groups: Group[], width: number, height: number, formatTick: (v: number) => string, shortLabel?: (key: string) => string): AxisLayout {
     const values = groups.map((g) => g.value);
     const ticks = niceTicks(Math.min(0, ...values), Math.max(0, ...values));
     const labelW = Math.min(Math.ceil(widest(groups.map((g) => g.label))) + 8, Math.floor(width / 3));
@@ -192,7 +209,7 @@ export function barLayout(groups: Group[], width: number, height: number, format
             key: g.key,
             x: plot.x - 6,
             y: plot.y + i * slot + slot / 2 + 4,
-            text: slot < LINE_H * 0.8 ? '' : fitText(g.label, labelW - 8),
+            text: slot < LINE_H * 0.8 ? '' : fitLabel(g.label, shortLabel && !g.blank && !g.other ? shortLabel(g.key) : undefined, labelW - 8),
             anchor: 'end' as const,
             maxWidth: labelW - 8,
         })),
@@ -291,8 +308,8 @@ export interface LineLayout extends AxisLayout {
 }
 
 /** A line through the groups in order, on the column layout's axes. */
-export function lineLayout(groups: Group[], width: number, height: number, formatTick: (v: number) => string): LineLayout {
-    const base = columnLayout(groups, width, height, formatTick);
+export function lineLayout(groups: Group[], width: number, height: number, formatTick: (v: number) => string, shortLabel?: (key: string) => string): LineLayout {
+    const base = columnLayout(groups, width, height, formatTick, shortLabel);
     const points = base.rects.map((r, i) => ({ key: r.key, x: r.x + r.w / 2, y: groups[i].value >= 0 ? r.y : r.y + r.h }));
     const d = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 

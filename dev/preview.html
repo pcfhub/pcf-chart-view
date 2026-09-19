@@ -39,6 +39,8 @@
     ?refused=1                           the server refuses the aggregate
     ?hostfilter=1                        a host filter in force (statecode = 0)
     ?subgrid=1                           under a record: contextInfo + the relationship filter (9 of 12 rows)
+    ?shrink=1                            a shrink-to-fit host, as the main grid is (measured W2): #root sizes to its content
+    ?allocated=0                         allocatedWidth -1, as a host that never answers it
     ?parent=masterid                     the Parent lookup input
     ?zone=-300                           the user's zone offset, minutes
     ?dark=1                              the dark fallbacks
@@ -110,6 +112,10 @@
             document.body.classList.add('is-dark');
         }
 
+        if (params.get('shrink') === '1') {
+            root.style.display = 'inline-block';
+        }
+
         var number = function (name) {
             var raw = params.get(name);
 
@@ -145,7 +151,7 @@
         var state = params.get('state');
         var handle = host.createHost(fixture, {
             host: params.get('host') === 'canvas' ? 'canvas' : 'model-driven',
-            width: window.innerWidth - 32,
+            width: params.get('allocated') === '0' ? -1 : window.innerWidth - 32,
             // The platform's page size: the demo fixture on one page, the rig's on three.
             pageSize: number('page') || (params.get('fixture') === 'demo' ? 50 : 5),
             columns: columns,

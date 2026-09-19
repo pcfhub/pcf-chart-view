@@ -132,8 +132,15 @@ export interface DateLabels {
     formatDay: (year: number, month: number, day: number) => string;
 }
 
-/** The text a bucket key renders as. A key this cannot read is shown as itself. */
-export function labelForKey(key: string, labels: DateLabels): string {
+/**
+ * The text a bucket key renders as. A key this cannot read is shown as
+ * itself. `short` is the form for a narrow axis slot: the year as two
+ * digits with an apostrophe (`Feb '22`, `Q1 '22`, `W6 '22`), which is
+ * what a chart axis writes when eight months share 330 px — measured on the
+ * Accounts main grid, where the full form cut to `Feb…` three times over.
+ */
+export function labelForKey(key: string, labels: DateLabels, short = false): string {
+    const year = (y: string): string => (short ? `'${y.slice(2)}` : y);
     let m = /^(\d{4})$/.exec(key);
 
     if (m) {
@@ -143,13 +150,13 @@ export function labelForKey(key: string, labels: DateLabels): string {
     m = /^(\d{4})-Q([1-4])$/.exec(key);
 
     if (m) {
-        return labels.quarter.replace('{0}', m[2]).replace('{1}', m[1]);
+        return labels.quarter.replace('{0}', m[2]).replace('{1}', year(m[1]));
     }
 
     m = /^(\d{4})-W(\d{2})$/.exec(key);
 
     if (m) {
-        return labels.week.replace('{0}', String(Number(m[2]))).replace('{1}', m[1]);
+        return labels.week.replace('{0}', String(Number(m[2]))).replace('{1}', year(m[1]));
     }
 
     m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(key);
@@ -162,7 +169,7 @@ export function labelForKey(key: string, labels: DateLabels): string {
 
     if (m) {
         const name = labels.monthNames[Number(m[2]) - 1] ?? m[2];
-        return `${name} ${m[1]}`;
+        return `${name} ${year(m[1])}`;
     }
 
     return key;

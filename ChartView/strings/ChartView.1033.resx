@@ -258,6 +258,9 @@
   <data name="ChartView_CaptionLoaded" xml:space="preserve">
     <value>The {0} records loaded so far</value>
   </data>
+  <data name="ChartView_CaptionViewGrid" xml:space="preserve">
+    <value>All {0} records in the view · the grid shows {1}</value>
+  </data>
   <data name="ChartView_CaptionRefused" xml:space="preserve">
     <value>The server could not aggregate this view; the {0} records loaded so far are shown.</value>
   </data>

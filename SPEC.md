@@ -1,3 +1,10 @@
+Asked what to bind. Nothing: the section's layout is the form designer's (two columns, the subgrid in one). Not yet done. |
+**Measured: the quick-find is invisible too.** No new `getFilter()` payload, the chart unchanged. The grid narrows, the aggregate does not; 0.0.4's caption says both counts when `paging.totalResultCount` differs from the aggregate's. |
+"Nothing changed" with `parentcustomerid` set on the *unrelated* subgrid. Not explained yet: the explicit route should have narrowed the aggregate to the record's contacts. The `P2 parent lookup` and `P3 server route` console lines are what decides whether the input reached the control; asked for again on 0.0.4. |
+**Measured: works** — an edit in the contact's form re-aggregated the chart on return. |
+**The subgrid was not related** (*Show related records* off), so the 31 was the subgrid's own count and P2's "wrong number" was the right number for that subgrid. Which leaves P2 proper — a *related* subgrid — still unmeasured, and shows the resolver needed a rule: rows that deny every candidate mean an unrelated subgrid and the whole view (0.0.4). The `P2 parent lookup` console line for this subgrid was not pasted. |
+**Measured — the chart was right and two defects showed.** The months were chronological across years (Feb 2022, Jun 2023, Feb 2024, Mar 2024, Feb 2025, Mar 2025, Apr 2025, Sep 2025) and weeks the same (W6, W24, W7, W12…), so `g` is the bucket number and `y` the year. But **the labels cut to `Feb…` three times over** — the full form has no room at ~40 px a slot — and **the control was a third of the grid's width**: the main grid is a shrink-to-fit host, the root measured its own caption before the SVG existed (~380 px), and the SVG locked it. 0.0.4: `mode.trackContainerResize(true)` and `allocatedWidth` as the floor of the measured width; a short label form (`Feb '22`) for a narrow slot. Which week 4 Jan falls in: not read off the picture. |
+**Measured.** `v` a number with `v@…FormattedValue` "$480,000.00" — the currency symbol is on the annotation, so the server route could take its number formatting from there; 0.1.0 still formats through `formatting` for both routes to agree. The blank-industry group carried revenue (480,000 across 59 accounts), so a group with *no* revenue is still unmeasured. |
 Not yet measured (0.0.3 walkthrough W4). |
 **Measured, with a surprise.** A Choice's `getValue()` came back as the **string** `"1"` on the subgrid (`getFormattedValue` "Default Value"), `null` where blank on the main grid; a Currency as a number (100000). And **the role column need not be in the view**: `customersizecode` was not among *All Contacts*' attributes, arrived on the dataset with `order: -1, visualSizeFactor: -1`, and `getValue` answered it — the platform adds a property-set column to the query. The docs said the opposite and were corrected. |
 Not measured. |
@@ -85,8 +92,31 @@ on the contacts subgrid and the accounts main grid again, and:
 | W6 | Main grid, type into the quick-find box | `P2 filtering.getFilter()` now shows the condition — which `conditionOperator` and `value`; the aggregate's `filterXml` carries it and the caption's N drops with it | |
 | W7 | A two-column section on the form (the chart in one column) | The legend below the chart, nothing cut | |
 
+## The 0.0.4 walkthrough
+
+0.0.4 is 0.0.3 with the width floor, the short date labels, the unrelated-
+subgrid rule and the two-count caption; `PROBE` still on.
+
+| # | Do | Expect | Answer |
+| --- | --- | --- | --- |
+| X1 | Main grid, *Group by* = Created On, Month | The chart fills the grid's width; labels read *Feb '22* or *Feb 2022*, never *Feb…* | |
+| X2 | Contacts subgrid **with *Show related records* on**, *Parent lookup* blank | Console `P2 parent lookup`: `by: "rows"` or `"only-candidate"`, `candidates` listing `parentcustomerid` (and `accountid`); caption *All N records* with N the subgrid's count. **Paste the P2 and P3 lines** | |
+| X3 | The same subgrid, *Parent lookup* = `parentcustomerid` | `by: "explicit"`, the same N | |
+| X4 | The unrelated subgrid again (*Show related records* off), *Parent lookup* blank | `by: "unrelated"`, caption *All 31 records* | |
+| X5 | Main grid, type in the quick-find, Enter | Caption *All 60 records in the view · the grid shows N* | |
+| X6 | Main grid, *Group by* = Created On, Week | Which week 4 Jan 2026 (a Sunday) falls in, from the label of a record created that week — or any record whose day you know (P5) | |
+| X7 | A section set to two columns in the form designer, the subgrid in one | The legend under the chart, nothing cut | |
+
 ## Platform behaviour worth knowing
 
+- **The main grid is a shrink-to-fit host.** Measured (W2): the control was
+  ~380 px of a ~1050 px grid because the root measured its own caption
+  before the SVG existed and the SVG locked it. `mode.allocatedWidth`
+  (after `trackContainerResize(true)`) is the floor. A form section is a
+  block parent and measures true.
+- **The grid's quick-find is invisible** to the control (W6): `getFilter()`
+  unchanged, the rows narrowed. `paging.totalResultCount` is the grid's
+  count and the caption compares it with the aggregate's.
 - **A subgrid's relationship is not on the dataset.** Measured: `getFilter()`
   `null`, `getLinkedEntities()` `[]`, `canDisableRelationshipFilter` on
   `filtering` naming what the platform applies itself; `mode.contextInfo`

@@ -258,6 +258,9 @@
   <data name="ChartView_CaptionLoaded" xml:space="preserve">
     <value>Die bisher geladenen {0} Datensätze</value>
   </data>
+  <data name="ChartView_CaptionViewGrid" xml:space="preserve">
+    <value>Alle {0} Datensätze der Ansicht · das Raster zeigt {1}</value>
+  </data>
   <data name="ChartView_CaptionRefused" xml:space="preserve">
     <value>Der Server konnte diese Ansicht nicht aggregieren; die bisher geladenen {0} Datensätze werden gezeigt.</value>
   </data>

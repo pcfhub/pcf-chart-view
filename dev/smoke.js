@@ -832,7 +832,7 @@ check('the view\'s title is offered for the heading', propsOf(first).viewTitle =
 
 check('the metadata loader is offered with Utility', typeof propsOf(first).metadata === 'function');
 
-check('the control does not touch the dataset: no refresh, no filter, no paging', first.calls().filter((c) => /^(refresh|filtering\.set|paging\.)/.test(c.name)).length === 0, first.calls().map((c) => c.name).join(','));
+check('the control does not touch the dataset: no refresh, no filter, no paging', first.calls().filter((c) => /^(refresh|filtering.set|paging.)/.test(String(c))).length === 0, first.calls().map((c) => String(c)).join(','));
 
 check('it settles in one pass', first.driven.passes === 1 && !first.driven.looping, `${first.driven.passes} passes`);
 
@@ -959,6 +959,18 @@ async function parentChecks() {
 
     check('two lookups: the one every loaded row points at the parent through', byRows.column === 'parentaccountid' && byRows.by === 'rows');
 
+    const unrelated = await Parent.resolveParentLookup(parentReading({ confirmed: () => false }));
+
+    check('every candidate denied by the rows is an unrelated subgrid — the view is the answer, no condition', unrelated.column === null && unrelated.by === 'unrelated');
+
+    const denied = await Parent.resolveParentLookup(parentReading({ candidates: () => Promise.resolve(['parentcustomerid']), confirmed: () => false }));
+
+    check("a lone candidate the rows deny is not trusted on the relationships' word", denied.by === 'unrelated');
+
+    const lone = await Parent.resolveParentLookup(parentReading({ candidates: () => Promise.resolve(['cll_parent']), confirmed: () => null }));
+
+    check('a lone candidate the rows cannot speak for is', lone.column === 'cll_parent' && lone.by === 'only-candidate');
+
     const unresolved = await Parent.resolveParentLookup(parentReading({}));
 
     check('two lookups and no row to ask: unresolved, with the candidates named', unresolved.column === null && unresolved.by === 'unresolved' && unresolved.candidates.length === 2);
@@ -1008,9 +1020,17 @@ async function parentChecks() {
 
     check('and anything that is not a logical name is ignored', propsOf(subgrid).server.parent.explicit === null);
 
-    const mainGrid = bind({});
+    const mainGrid = bind({ width: 900 });
 
     check('a main grid has no parent: no record, no condition', propsOf(mainGrid).server.parent === null);
+
+    check('the control asks for its width and hands the allocated one down as a floor', mainGrid.calls().some((c) => String(c).indexOf('trackContainerResize') === 0) && propsOf(mainGrid).allocatedWidth === 900);
+
+    check("and the grid's own count, for the caption to compare against", propsOf(mainGrid).gridCount === 12 && propsOf(bind({ quirks: { uncounted: true } })).gridCount === null);
+
+    check('a date label has a short form for a narrow slot', D.labelForKey('2022-02', labels, true) === "Feb '22" && D.labelForKey('2022-Q1', labels, true) === "Q1 '22" && D.labelForKey('2022', labels, true) === '2022');
+
+    check('a slot takes the label whole, then the short form whole, then a cut', G.fitLabel('Feb 2022', "Feb '22", 60) === 'Feb 2022' && G.fitLabel('Feb 2022', "Feb '22", 48) === "Feb '22" && G.fitLabel('Feb 2022', "Feb '22", 20) === 'Fe…' && G.fitLabel('Retail', undefined, 20) === 'Re…');
 
     const readOnly = bind({ contextInfo: onForm, relationshipFilter: { column: 'parentaccountid', id: P1 }, quirks: { relationshipsStatus: 403 } });
 

@@ -23,6 +23,14 @@
  *      far*, and the console names the candidates and the input that settles
  *      it.
  *
+ * And the rows may say **no**. A subgrid configured without *Show related
+ * records* lists the whole table under a record (measured 2026-09-19, W3),
+ * so a form is not proof of a relationship: a candidate the loaded rows
+ * deny — a row pointing elsewhere, or nowhere — is dropped, and when every
+ * candidate is denied the subgrid is unrelated and the view is the answer,
+ * with no condition at all. Only a candidate the rows cannot speak for
+ * (not in the dataset) is trusted on the relationships' word alone.
+ *
  * Why the third step matters on the first table anyone tries: a contact has
  * two lookups to account, `parentcustomerid` (the one a subgrid uses) and the
  * read-only `accountid`, and a view usually carries the first.
@@ -53,10 +61,10 @@ export interface ParentReading {
 }
 
 export interface ParentResolution {
-    /** The column, or `null` when nothing settles it. */
+    /** The column, or `null` when nothing settles it — or when the subgrid is unrelated (`by: 'unrelated'`). */
     column: string | null;
     /** How it was settled — for the probe and the console. */
-    by: 'explicit' | 'only-candidate' | 'rows' | 'unresolved' | 'no-candidates';
+    by: 'explicit' | 'only-candidate' | 'rows' | 'unrelated' | 'unresolved' | 'no-candidates';
     candidates: string[];
 }
 
@@ -78,14 +86,21 @@ export async function resolveParentLookup(parent: ParentReading): Promise<Parent
         return { column: null, by: 'no-candidates', candidates };
     }
 
-    if (candidates.length === 1) {
-        return { column: candidates[0], by: 'only-candidate', candidates };
+    const verdicts = candidates.map((c) => ({ column: c, rows: parent.confirmed(c) }));
+    const confirmed = verdicts.filter((v) => v.rows === true);
+    const open = verdicts.filter((v) => v.rows !== false);
+
+    if (confirmed.length === 1) {
+        return { column: confirmed[0].column, by: 'rows', candidates };
     }
 
-    const inRows = candidates.filter((c) => parent.confirmed(c) === true);
+    if (open.length === 0) {
+        // Every lookup to the parent table is in the rows and none points at the record: not a related subgrid.
+        return { column: null, by: 'unrelated', candidates };
+    }
 
-    if (inRows.length === 1) {
-        return { column: inRows[0], by: 'rows', candidates };
+    if (open.length === 1 && candidates.length === 1) {
+        return { column: open[0].column, by: 'only-candidate', candidates };
     }
 
     return { column: null, by: 'unresolved', candidates };
