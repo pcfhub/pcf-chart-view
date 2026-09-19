@@ -12,7 +12,7 @@
   -->
   <control namespace="PCFHub"
            constructor="ChartView"
-           version="0.1.0"
+           version="0.1.1"
            display-name-key="ChartView_Name"
            description-key="ChartView_Desc"
            control-type="virtual">

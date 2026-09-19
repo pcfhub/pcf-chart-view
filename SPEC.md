@@ -105,24 +105,27 @@ and `P10 allocatedWidth` logged; `PROBE` still on. **The last probe before
 ## The 0.1.0 walkthrough — before the tag
 
 0.1.0 is 0.0.5 with `PROBE` off and the unresolved warning naming the
-input's value. It goes on the form before it is tagged, as every first
-release here does.
+input's value. It went on the form before a tag, as every first release
+here does, and the form found Z4 — so **0.1.1 is the first tag**, 0.1.0
+being the number the form build carried and Dataverse ignoring a re-import
+at the same number.
 
 | # | Do | Expect | Answer |
 | --- | --- | --- | --- |
-| Z1 | The unrelated subgrid, *Parent lookup* = `none`, saved and published | No console warning; caption *All 21 records* | |
-| Z2 | The same with *Parent lookup* blank | A console warning ending *Parent lookup reads as blank: set it to the column, or to "none"…* | |
-| Z3 | A Choice column with **option colours set** in the table designer (e.g. the account's Industry given colours) as *Group by* | The bars in the options' own colours, not the palette | |
-| Z4 | The related contacts subgrid, *Group by* = Customer Size, a donut | The record's contacts only, the legend beside, the percentages on the slices | |
-| Z5 | The phone client, any of the above | Legend below the chart, marks pressable | |
+| Z1 | The unrelated subgrid, *Parent lookup* = `none`, saved and published | No console warning; caption *All 21 records* | **Measured: no warning, *All 21 records*.** `none` reaches the resolver on the form; Y2 was configuration-side. |
+| Z2 | The same with *Parent lookup* blank | A console warning ending *Parent lookup reads as blank: set it to the column, or to "none"…* | **Measured: the warning ends as written.** |
+| Z3 | A Choice column with **option colours set** in the table designer (e.g. the account's Industry given colours) as *Group by* | The bars in the options' own colours, not the palette | **Measured: the bars and slices in the options' own colours** (*Price Condition*: blue, coral, lime, charcoal, as set in the table designer) — `attributeDescriptor.OptionSet[].Color` on a property-set column, the same read as pcf-kanban-board's lane column. |
+| Z4 | The related contacts subgrid, *Group by* = Customer Size, a donut | The record's contacts only, the legend beside, the percentages on the slices | **Measured: a defect at a middle width — the donut drew over the legend, and the legend sat on the *left*.** The form's cell is shrink-to-fit; with the SVG out of the flow (0.0.5) nothing in-flow gave the root a width but the legend, so the row collapsed to the legend and the SVG overflowed from x = 0 — invisible on a column chart with no legend (X7, Y1), which overflowed into the right place. 0.1.1 sets the root's width to `allocatedWidth` outright; reproduced and fixed in the preview at 880 and 1240 on a shrink-to-fit root. |
+| Z5 | The phone client, any of the above | Legend below the chart, marks pressable | **Measured on the phone client: the legend below the chart, marks pressable.** |
 
 ## Platform behaviour worth knowing
 
-- **The main grid is a shrink-to-fit host.** Measured (W2): the control was
-  ~380 px of a ~1050 px grid because the root measured its own caption
-  before the SVG existed and the SVG locked it. `mode.allocatedWidth`
-  (after `trackContainerResize(true)`) is the floor. A form section is a
-  block parent and measures true.
+- **Both hosts are shrink-to-fit, and the root's width has to come from
+  the host.** W2: the main grid drew the control at its caption's width. Z4:
+  the form's cell collapsed the flex row to the legend once the SVG was out
+  of the flow. `mode.allocatedWidth` (after `trackContainerResize(true)`)
+  is set on the root outright and follows the window both ways (Y1); the
+  ResizeObserver is the fallback for a host that never answers it.
 - **The grid's quick-find is invisible** to the control (W6): `getFilter()`
   unchanged, the rows narrowed. `paging.totalResultCount` is the grid's
   count and the caption compares it with the aggregate's.
@@ -176,8 +179,9 @@ labels rather than option values because a fixture record cannot carry both.
 
 - Which week 4 January falls in (P5 — the week rule), the refusal shape of an
   aggregate the server cannot run (P7), a personal view through `userquery`,
-  a Choice's option colours on a real form (Z3), and `none` reaching the
-  resolver on the form (Z1 — Y2 did not settle it).
+  and a group whose only values are blank on a sum (W1).
+- 0.1.1's root width on the form itself: fixed in the preview against a
+  shrink-to-fit root; the form is the next look.
 - **That `ManyToOneRelationships` for contact → account lists
   `parentcustomerid` and `accountid`, and that the rows pick the first.**
   The resolver is measured on the rig; W3 measures it on the form.

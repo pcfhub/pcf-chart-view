@@ -1030,6 +1030,8 @@ async function parentChecks() {
 
     check('the control asks for its width and hands the allocated one down as a floor', mainGrid.calls().some((c) => String(c).indexOf('trackContainerResize') === 0) && propsOf(mainGrid).allocatedWidth === 900);
 
+    check('and the root takes that width outright, so a shrink-to-fit cell cannot collapse the row to its legend', /class="ChartView[^"]*"[^>]*style="width:900px"/.test(renderDeep(mainGrid.driven.element)) && !/style="width:/.test(renderDeep(bind({ width: -1 }).driven.element).split('ChartView-head')[0]));
+
     check("and the grid's own count, for the caption to compare against", propsOf(mainGrid).gridCount === 12 && propsOf(bind({ quirks: { uncounted: true } })).gridCount === null);
 
     check('a date label has a short form for a narrow slot', D.labelForKey('2022-02', labels, true) === "Feb '22" && D.labelForKey('2022-Q1', labels, true) === "Q1 '22" && D.labelForKey('2022', labels, true) === '2022');

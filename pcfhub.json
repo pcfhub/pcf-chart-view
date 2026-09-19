@@ -5,7 +5,8 @@
   "name": "Chart View",
   "tagline": "A Dataverse view as a bar, column, pie, donut or line chart — grouped by a column, aggregated on the server.",
   "category": "data",
-  "tags": ["react", "dataset", "chart", "pie", "bar", "line", "aggregate", "fetchxml", "accessible", "canvas"],
+  "hosts": ["canvas", "model-driven"],
+  "tags": ["react", "chart", "pie", "bar", "line", "aggregate", "fetchxml", "accessible"],
 
   "control": {
     "namespace": "PCFHub",

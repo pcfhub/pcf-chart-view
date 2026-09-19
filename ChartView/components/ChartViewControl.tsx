@@ -353,6 +353,17 @@ export const ChartViewControl: React.FC<IProps> = (props) => {
             <div
                 className={['ChartView', props.dark ? 'ChartView--dark' : '', narrow ? 'is-narrow' : '', stale ? 'is-stale' : '', props.disabled ? 'is-disabled' : ''].join(' ').trim()}
                 ref={rootRef}
+                /*
+                 * The host's width, outright. A form cell is shrink-to-fit
+                 * and, with the SVG out of the flow, nothing in-flow gives
+                 * the root a width but the legend — measured 2026-09-19 (Z4):
+                 * the row collapsed to the legend and the donut drew over it
+                 * from x = 0. A column chart with no legend had overflowed
+                 * into exactly the right place, which is why X7 passed.
+                 * `allocatedWidth` follows the window both ways (Y1); a host
+                 * that never answers it (-1) keeps the stylesheet's 100%.
+                 */
+                style={props.allocatedWidth > 0 ? { width: `${props.allocatedWidth}px` } : undefined}
             >
                 <div className="ChartView-head">
                     {title ? <h3 className="ChartView-title">{title}</h3> : null}
