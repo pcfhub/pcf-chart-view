@@ -118,6 +118,30 @@ at the same number.
 | Z4 | The related contacts subgrid, *Group by* = Customer Size, a donut | The record's contacts only, the legend beside, the percentages on the slices | **Measured: a defect at a middle width — the donut drew over the legend, and the legend sat on the *left*.** The form's cell is shrink-to-fit; with the SVG out of the flow (0.0.5) nothing in-flow gave the root a width but the legend, so the row collapsed to the legend and the SVG overflowed from x = 0 — invisible on a column chart with no legend (X7, Y1), which overflowed into the right place. 0.1.1 sets the root's width to `allocatedWidth` outright; reproduced and fixed in the preview at 880 and 1240 on a shrink-to-fit root. |
 | Z5 | The phone client, any of the above | Legend below the chart, marks pressable | **Measured on the phone client: the legend below the chart, marks pressable.** |
 
+## The hub's demo — after the tag (0.1.2)
+
+The 0.1.1 release went onto pcfhub.dev the same night, and its demo flashed:
+every preset showed and hid a horizontal and a vertical scrollbar, on the
+desktop toggle only — tablet and phone were fine.
+
+| # | Where | Expected | Measured |
+|---|-------|----------|----------|
+| H1 | pcfhub.dev/components/pcf-chart-view, desktop toggle | The chart fills the frame, no scrollbar | **Measured 2026-09-19: both scrollbars, and the cause is in the host.** The demo harness set `allocatedWidth` from its *wrapper's* border box — `#demo-viewport`, 8 px of padding a side around the `#control-root` the control is in — so the root, set to that width outright (0.1.1, Z4), was 16 px wider than the page. A horizontal scrollbar; its 17 px overflowing the frame's height (the parent sizes the iframe to the content's bottom edge, scrollbars excluded) into a vertical one; that one narrowing the wrapper; the wrapper's ResizeObserver re-measuring and re-rendering; and round again. Tablet and phone hand the request's own width to a container of that width, so nothing overflowed there — the device frame's 1 px border made even that number 2 px generous. Reproduced in the preview with `?over=24`: root 992 in a 968 box, `scrollWidth` 1008. |
+
+Two fixes, and both belong. **The harness** hands over `#control-root`'s
+`clientWidth` now — the box inside the border, read after the device frame
+is styled (`pcfhub` `resources/js/demo-harness/main.ts`; its source check
+pins the line). **The control** carries `max-width: 100%` on the root, so a
+host that over-reports cannot push it past its box, and draws at the
+smaller of the measured and the allocated width once both exist — with the
+root clamped, the allocated number is the wrong one, and an SVG drawn at
+it hangs past the root by the same amount. Preview: `?over=24` gives root
+968, `scrollWidth` 1000; `?shrink=1` at 880 and 1000 still gives the root
+the allocated width with the legend beside the donut, because in a
+shrink-to-fit parent a percentage max-width counts for nothing while the
+parent sizes itself. Asserted in the suite (156).
+
+
 ## Platform behaviour worth knowing
 
 - **Both hosts are shrink-to-fit, and the root's width has to come from
@@ -125,7 +149,9 @@ at the same number.
   the form's cell collapsed the flex row to the legend once the SVG was out
   of the flow. `mode.allocatedWidth` (after `trackContainerResize(true)`)
   is set on the root outright and follows the window both ways (Y1); the
-  ResizeObserver is the fallback for a host that never answers it.
+  ResizeObserver is the fallback for a host that never answers it — and,
+  under `max-width: 100%`, the truth when a host hands over more width than
+  the box it gives (H1: the hub's demo did).
 - **The grid's quick-find is invisible** to the control (W6): `getFilter()`
   unchanged, the rows narrowed. `paging.totalResultCount` is the grid's
   count and the caption compares it with the aggregate's.
@@ -180,8 +206,9 @@ labels rather than option values because a fixture record cannot carry both.
 - Which week 4 January falls in (P5 — the week rule), the refusal shape of an
   aggregate the server cannot run (P7), a personal view through `userquery`,
   and a group whose only values are blank on a sum (W1).
-- 0.1.1's root width on the form itself: fixed in the preview against a
-  shrink-to-fit root; the form is the next look.
+- 0.1.2's ceiling on the form itself: `max-width: 100%` on a root set to
+  `allocatedWidth`, fixed in the preview against a shrink-to-fit root (880
+  and 1000); the form is the next look — Z4 and Y1 again.
 - **That `ManyToOneRelationships` for contact → account lists
   `parentcustomerid` and `accountid`, and that the rows pick the first.**
   The resolver is measured on the rig; W3 measures it on the form.

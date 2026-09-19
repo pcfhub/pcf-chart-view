@@ -138,8 +138,18 @@ function useMetadata(loader: (() => Promise<MetadataReading>) | null, key: strin
 export const ChartViewControl: React.FC<IProps> = (props) => {
     const rootRef = React.useRef<HTMLDivElement>(null);
     const measured = useWidth(rootRef);
-    // A shrink-to-fit host measures the caption, not the grid — see init().
-    const width = Math.max(measured, props.allocatedWidth > 0 ? props.allocatedWidth : 0);
+    /*
+     * The width to draw at. The root is styled to `allocatedWidth` below, so
+     * once the observer has read it the two agree — except on a host that
+     * hands over more width than the box it put the control in, where the
+     * stylesheet's ceiling clamps the root and the measured width is the
+     * smaller, true one. Drawing at the allocated width there is the SVG
+     * hanging past the root and the page scrolling sideways, which is what
+     * the hub's desktop demo did on 0.1.1. Before the first reading, or on a
+     * host that never answers (-1), whichever number exists.
+     */
+    const allocated = props.allocatedWidth > 0 ? props.allocatedWidth : 0;
+    const width = measured > 0 && allocated > 0 ? Math.min(measured, allocated) : Math.max(measured, allocated);
     const { meta, settled: metaSettled } = useMetadata(props.metadata, props.metadataKey);
     const [server, setServer] = React.useState<ServerState>({ key: '', rows: null, refused: null, unavailable: false, pending: false });
     const [hover, setHover] = React.useState<string | null>(null);

@@ -1032,6 +1032,22 @@ async function parentChecks() {
 
     check('and the root takes that width outright, so a shrink-to-fit cell cannot collapse the row to its legend', /class="ChartView[^"]*"[^>]*style="width:900px"/.test(renderDeep(mainGrid.driven.element)) && !/style="width:/.test(renderDeep(bind({ width: -1 }).driven.element).split('ChartView-head')[0]));
 
+    /*
+     * And a ceiling under it. The hub's demo handed over its wrapper's width,
+     * padding included, and a root at that width put a horizontal scrollbar
+     * on the frame — then a vertical one, then both flashing (measured
+     * 2026-09-19 on pcfhub.dev). The stylesheet clamps the root to its box;
+     * the drawing width then has to follow the clamped root, not the number
+     * the host gave, or the SVG hangs past the root by the same amount.
+     */
+    const css = fs.readFileSync(path.join(__dirname, '..', 'ChartView', 'css', 'ChartView.css'), 'utf8');
+    // The declarations alone: the comments beside them name the rules they refuse.
+    const rootRule = css.slice(css.indexOf('.ChartView {'), css.indexOf('}', css.indexOf('.ChartView {'))).replace(/\/\*[\s\S]*?\*\//g, '');
+
+    check('the root has a max-width of 100%, so a host that over-reports allocatedWidth cannot push it past its box', /max-width:\s*100%/.test(rootRule) && !/container-type/.test(rootRule));
+
+    check('the drawing width is the smaller of measured and allocated once both exist, and whichever exists before', /Math\.min\(measured, allocated\)/.test(fs.readFileSync(path.join(src, 'components', 'ChartViewControl.tsx'), 'utf8')));
+
     check("and the grid's own count, for the caption to compare against", propsOf(mainGrid).gridCount === 12 && propsOf(bind({ quirks: { uncounted: true } })).gridCount === null);
 
     check('a date label has a short form for a narrow slot', D.labelForKey('2022-02', labels, true) === "Feb '22" && D.labelForKey('2022-Q1', labels, true) === "Q1 '22" && D.labelForKey('2022', labels, true) === '2022');

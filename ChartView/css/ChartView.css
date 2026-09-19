@@ -39,6 +39,18 @@
     gap: var(--spacingVerticalXS, 4px);
     width: 100%;
     /*
+      The inline width the component sets from `allocatedWidth` is what a
+      shrink-to-fit form cell needs (Z4), and this is its ceiling: a host that
+      hands over more width than the box it put the control in — the hub's
+      demo did, by its wrapper's 16px of padding — otherwise gets a root 16px
+      wider than the page, a horizontal scrollbar, and then a vertical one
+      whose 17px narrows the host, re-measures, and flashes the pair.
+
+      In a shrink-to-fit parent a percentage max-width counts for nothing
+      while the parent sizes itself, so it cannot re-collapse the cell.
+    */
+    max-width: 100%;
+    /*
       No `container-type` here, ever. Containment zeroes the root's intrinsic
       width, and a form section is a shrink-to-fit parent: pcf-calendar-view
       0.1.3 collapsed to a sliver on every form for exactly that. The narrow

@@ -41,6 +41,7 @@
     ?subgrid=1                           under a record: contextInfo + the relationship filter (9 of 12 rows)
     ?shrink=1                            a shrink-to-fit host, as the main grid is (measured W2): #root sizes to its content
     ?allocated=0                         allocatedWidth -1, as a host that never answers it
+    ?over=16                             allocatedWidth over-reported by N px, as the hub's demo did (its wrapper's padding): no scrollbar may follow
     ?parent=masterid                     the Parent lookup input
     ?zone=-300                           the user's zone offset, minutes
     ?dark=1                              the dark fallbacks
@@ -151,7 +152,7 @@
         var state = params.get('state');
         var handle = host.createHost(fixture, {
             host: params.get('host') === 'canvas' ? 'canvas' : 'model-driven',
-            width: params.get('allocated') === '0' ? -1 : window.innerWidth - 32,
+            width: params.get('allocated') === '0' ? -1 : window.innerWidth - 32 + (number('over') || 0),
             // The platform's page size: the demo fixture on one page, the rig's on three.
             pageSize: number('page') || (params.get('fixture') === 'demo' ? 50 : 5),
             columns: columns,
