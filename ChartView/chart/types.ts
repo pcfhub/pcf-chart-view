@@ -90,7 +90,7 @@ export interface Settings {
     dateGrouping: DateGrouping;
     topN: number | null;
     sortBy: SortBy;
-    labels: LabelMode;
+    valueLabels: LabelMode;
     legend: LegendMode;
     title: string;
     height: number;

@@ -53,7 +53,7 @@ by design. See `docs/limitations.md` for the rest of what it does not do.
 | `dateGrouping` | Enum `day` \| `week` \| `month` \| `quarter` \| `year` | `month` | The bucket, when Group by is a date |
 | `topN` | Whole.None | — | Keep this many largest groups; fold the rest into *Other*. Ignored for a date |
 | `sortBy` | Enum `value` \| `label` | `value` | Largest first, or the category's own order. A date is always chronological |
-| `labels` | Enum `auto` \| `value` \| `percent` \| `none` | `auto` | What is written on each mark: values on bars, percentages on a pie |
+| `valueLabels` | Enum `auto` \| `value` \| `percent` \| `none` | `auto` | What is written on each mark: values on bars, percentages on a pie |
 | `legend` | Enum `auto` \| `show` \| `hide` | `auto` | A legend on a pie or donut only, or always, or never |
 | `title` | SingleLine.Text | — | The heading; empty uses the view's name |
 | `height` | Whole.None | — (280) | The chart's height in px; the width is the container's |

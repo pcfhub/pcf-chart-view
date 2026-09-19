@@ -933,7 +933,7 @@ const strings = (key) => `resx:${key}`;
 const chartData = A.finishGroups(A.groupReadings(propsOf(first).readings), finishOpts({ aggregate: 'count' }));
 const chartProps = (over) => ({
     data: chartData,
-    settings: { ...propsOf(first).settings, chartType: 'column', labels: 'auto', legend: 'auto' },
+    settings: { ...propsOf(first).settings, chartType: 'column', valueLabels: 'auto', legend: 'auto' },
     width: 480,
     height: 280,
     formatValue: (v) => String(v),
@@ -958,7 +958,7 @@ const columnOut = renderDeep(React.createElement(Components.Chart, chartProps())
 
 check('columns label themselves with the value, pies with the percentage', columnOut.indexOf('class="ChartView-value"') !== -1 && renderDeep(React.createElement(Components.Chart, chartProps({ settings: { ...chartProps().settings, chartType: 'pie' } }))).indexOf('resx:ChartView_Percent') !== -1);
 
-check('labels none writes nothing on the marks', renderDeep(React.createElement(Components.Chart, chartProps({ settings: { ...chartProps().settings, labels: 'none' } }))).indexOf('ChartView-value') === -1);
+check('labels none writes nothing on the marks', renderDeep(React.createElement(Components.Chart, chartProps({ settings: { ...chartProps().settings, valueLabels: 'none' } }))).indexOf('ChartView-value') === -1);
 
 check('every mark carries an accessible name with label, value and share', (columnOut.match(/aria-label="resx:ChartView_ItemLabel"/g) || []).length === chartData.groups.length);
 

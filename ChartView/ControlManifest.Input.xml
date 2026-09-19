@@ -12,7 +12,7 @@
   -->
   <control namespace="PCFHub"
            constructor="ChartView"
-           version="0.0.1"
+           version="0.0.2"
            display-name-key="ChartView_Name"
            description-key="ChartView_Desc"
            control-type="virtual">
@@ -202,8 +202,20 @@
       column, the percentage on a pie or donut, nothing on a line — the
       convention a reader expects of each shape. An Enum rather than a
       TwoOptions because a TwoOptions cannot default to on.
+
+      NOT `labels`, AND THAT NAME IS A MEASURED TRAP. The classic form
+      designer writes every configured property under the cell's
+      `<parameters>` as an element named after the property, and the
+      publish step scans FormXML for `<labels>` elements to publish their
+      translations — so a property named `labels` made publishing the
+      Accounts form fail with "XML node parameters is one that has an id of
+      <the cell's guid> but is one that we don't recognize as having a valid
+      LabelTypeCode" (2026-09-19, the 0.0.1 probe). An entity view has no
+      FormXML, which is why the same control published on the grid. Never
+      name a property after a FormXML element; `npm run check` refuses this
+      one and warns on the rest.
     -->
-    <property name="labels"
+    <property name="valueLabels"
               display-name-key="Labels_Name"
               description-key="Labels_Desc"
               of-type="Enum"

@@ -376,7 +376,7 @@ interface ChartProps {
 /** The text on a mark, by the labels mode and the chart's shape. */
 function markLabel(group: Group, data: ChartData, settings: Settings, formatValue: (v: number) => string, getString: (id: string) => string): string {
     const round = settings.chartType === 'pie' || settings.chartType === 'donut';
-    const mode = settings.labels === 'auto' ? (round ? 'percent' : settings.chartType === 'line' ? 'none' : 'value') : settings.labels;
+    const mode = settings.valueLabels === 'auto' ? (round ? 'percent' : settings.chartType === 'line' ? 'none' : 'value') : settings.valueLabels;
 
     switch (mode) {
         case 'value':

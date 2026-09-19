@@ -116,7 +116,7 @@ export function readSettings(context: ComponentFramework.Context<IInputs>): Sett
         dateGrouping: oneOf<DateGrouping>(p.dateGrouping?.raw, ['day', 'week', 'month', 'quarter', 'year'], 'month'),
         topN: topN !== null && topN >= 1 ? Math.trunc(topN) : null,
         sortBy: oneOf<SortBy>(p.sortBy?.raw, ['value', 'label'], 'value'),
-        labels: oneOf<LabelMode>(p.labels?.raw, ['auto', 'value', 'percent', 'none'], 'auto'),
+        valueLabels: oneOf<LabelMode>(p.valueLabels?.raw, ['auto', 'value', 'percent', 'none'], 'auto'),
         legend: oneOf<LegendMode>(p.legend?.raw, ['auto', 'show', 'hide'], 'auto'),
         title: typeof p.title?.raw === 'string' ? p.title.raw.trim() : '',
         height: height !== null && height >= 80 ? Math.min(Math.trunc(height), 2000) : DEFAULT_HEIGHT,

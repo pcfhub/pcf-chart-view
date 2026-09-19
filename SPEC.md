@@ -38,7 +38,7 @@ Three consequences the caption is there to make honest:
 
 ## The 0.0.1 probe — questions for the form
 
-The 0.0.x builds are probes: `PROBE = true` in `index.ts` logs the answers
+The 0.0.x builds are probes (0.0.2 is 0.0.1 with the `labels` property renamed — see P0; Dataverse ignores a re-import at the same number): `PROBE = true` in `index.ts` logs the answers
 to the questions below under `[ChartView probe]`, once per distinct payload,
 and the component logs the query it sent and the first five rows it got
 back. **Tag 0.1.0 only after the answers**; each row names what it decides.
@@ -50,6 +50,7 @@ back. **Tag 0.1.0 only after the answers**; each row names what it decides.
 
 | # | Question | Decides | Answer |
 | --- | --- | --- | --- |
+| P0 | Does the control configure and publish on a classic-designer subgrid at all? | the manifest | **Measured 2026-09-19, and it did not**: publishing the Accounts form after mounting 0.0.1 on a subgrid in the classic designer failed with *XML node parameters is one that has an id of 7f5ecd1d-… but is one that we don't recognize as having a valid LabelTypeCode*, while the same control published on the entity view. The property named `labels` was the cause: the classic designer writes each configured property under the cell's `<parameters>` as an element of that name, and the publish step treats every `<labels>` in FormXML as a label owner — the GUID is the cell's. Renamed `valueLabels` in 0.0.2; `npm run check` now refuses the name and warns on the other FormXML element names. |
 | P1 | `Object.keys(dataset)`, `paging`, `filtering`, `linking` on a **subgrid** and on a **main grid**; `getViewId()` on each; `mode.contextInfo` on the subgrid | whether the surface differs between the two hosts; `linking` as a source of the relationship | |
 | P2 | `filtering.getFilter()` on the **subgrid** before the user does anything: does it carry the relationship to the parent record (a condition on `parentcustomerid` / `_value`)? And on the main grid after typing into the quick-find box: what `conditionOperator` and `value`? | **the whole subgrid case.** If the relationship is in `getFilter()`, the server route already appends it. If not, the server route on a subgrid aggregates the *view* — every contact, not this account's — and 0.1.0 must withhold it when `contextInfo.entityId` is set and no condition names the parent. `linking.getLinkedEntities()` is the other place to look | |
 | P3 | The aggregate over a Choice on the main grid: status, elapsed, and the first rows' exact keys — is `g` the integer, is `g@OData.Community.Display.V1.FormattedValue` the label, is `n` a number, is the blank group a row with no `g` (as FetchXML omits nulls) or with `g: null`? | `query/rows.ts` reads all four leniently; the rig omits `g` | |

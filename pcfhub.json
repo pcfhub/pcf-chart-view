@@ -46,26 +46,26 @@
         "slug": "count-by-industry",
         "name": "Count by industry",
         "description": "Columns, one per industry, largest first.",
-        "props": { "chartType": "column", "aggregate": "count", "dateGrouping": "month", "sortBy": "value", "labels": "auto", "legend": "auto", "title": "" },
+        "props": { "chartType": "column", "aggregate": "count", "dateGrouping": "month", "sortBy": "value", "valueLabels": "auto", "legend": "auto", "title": "" },
         "isDefault": true
       },
       {
         "slug": "revenue-pie",
         "name": "Revenue by industry",
         "description": "A pie of the annual revenue summed per industry, with a legend.",
-        "props": { "chartType": "pie", "aggregate": "sum", "dateGrouping": "month", "sortBy": "value", "labels": "auto", "legend": "auto", "title": "Revenue by industry" }
+        "props": { "chartType": "pie", "aggregate": "sum", "dateGrouping": "month", "sortBy": "value", "valueLabels": "auto", "legend": "auto", "title": "Revenue by industry" }
       },
       {
         "slug": "top-three-donut",
         "name": "Top three, and Other",
         "description": "A donut keeping the three largest industries and folding the rest into Other.",
-        "props": { "chartType": "donut", "aggregate": "count", "dateGrouping": "month", "topN": 3, "sortBy": "value", "labels": "percent", "legend": "show", "title": "" }
+        "props": { "chartType": "donut", "aggregate": "count", "dateGrouping": "month", "topN": 3, "sortBy": "value", "valueLabels": "percent", "legend": "show", "title": "" }
       },
       {
         "slug": "bar-by-label",
         "name": "Bars in the category's own order",
         "description": "Horizontal bars sorted by label rather than by size, values written beside them.",
-        "props": { "chartType": "bar", "aggregate": "count", "dateGrouping": "month", "sortBy": "label", "labels": "value", "legend": "hide", "title": "" }
+        "props": { "chartType": "bar", "aggregate": "count", "dateGrouping": "month", "sortBy": "label", "valueLabels": "value", "legend": "hide", "title": "" }
       }
     ]
   }
