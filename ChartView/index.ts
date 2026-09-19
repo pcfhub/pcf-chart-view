@@ -26,7 +26,7 @@ type DataSet = ComponentFramework.PropertyTypes.DataSet;
  * one prefix, once per distinct payload. Off in a release: the constant is
  * flipped in the same commit as the version.
  */
-const PROBE = true;
+const PROBE = false;
 
 /**
  * A Dataverse view as a chart.
@@ -75,7 +75,8 @@ export class ChartView implements ComponentFramework.ReactControl<IInputs, IOutp
          * ~380 px of a ~1050 px grid, and the SVG then locked it. A form
          * section is a block parent and measures true. `allocatedWidth` is
          * -1 until this call and the grid's real width after it; the
-         * component takes the larger of the two.
+         * component takes the larger of the two. Measured on both hosts
+         * (Y1): the chart follows the window both ways.
          */
         context.mode.trackContainerResize(true);
     }

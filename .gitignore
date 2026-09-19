@@ -18,3 +18,4 @@
 
 *.pcfproj.user
 *.cdsproj.user
+.release-notes-*.md

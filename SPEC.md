@@ -99,8 +99,22 @@ and `P10 allocatedWidth` logged; `PROBE` still on. **The last probe before
 
 | # | Do | Expect | Answer |
 | --- | --- | --- | --- |
-| Y1 | The form with the chart in a two-column section, and the main grid: widen the window, then narrow it | The chart follows both ways. Console `P10 allocatedWidth`: whether the number goes **down** when the window narrows | |
-| Y2 | The unrelated subgrid (*Show related records* off), *Parent lookup* = `none` | `by: "unrelated"`, caption *All 21 records* (the view's count) | |
+| Y1 | The form with the chart in a two-column section, and the main grid: widen the window, then narrow it | The chart follows both ways. Console `P10 allocatedWidth`: whether the number goes **down** when the window narrows | **Measured: the chart follows the window both ways, on the form's two-column section and on the main grid.** The rule stands: the larger of the measured width and `allocatedWidth`, with the SVG out of the flow. Whether `allocatedWidth` itself goes down was not read off the console; it no longer matters to the rule. |
+| Y2 | The unrelated subgrid (*Show related records* off), *Parent lookup* = `none` | `by: "unrelated"`, caption *All 21 records* (the view's count) | **Not settled.** The caption read *All 21 records* (the loaded page is the whole view there), but the console still logged `by: "unresolved"` with `explicit` blank — the `none` never reached the resolver, while X3 proved a column name does. Configuration-side is the likely cause (another control instance, an unpublished value); 0.1.0's unresolved warning names what *Parent lookup* reads as, so the next look tells. |
+
+## The 0.1.0 walkthrough — before the tag
+
+0.1.0 is 0.0.5 with `PROBE` off and the unresolved warning naming the
+input's value. It goes on the form before it is tagged, as every first
+release here does.
+
+| # | Do | Expect | Answer |
+| --- | --- | --- | --- |
+| Z1 | The unrelated subgrid, *Parent lookup* = `none`, saved and published | No console warning; caption *All 21 records* | |
+| Z2 | The same with *Parent lookup* blank | A console warning ending *Parent lookup reads as blank: set it to the column, or to "none"…* | |
+| Z3 | A Choice column with **option colours set** in the table designer (e.g. the account's Industry given colours) as *Group by* | The bars in the options' own colours, not the palette | |
+| Z4 | The related contacts subgrid, *Group by* = Customer Size, a donut | The record's contacts only, the legend beside, the percentages on the slices | |
+| Z5 | The phone client, any of the above | Legend below the chart, marks pressable | |
 
 ## Platform behaviour worth knowing
 
@@ -160,7 +174,10 @@ labels rather than option values because a fixture record cannot carry both.
 
 ## Not verified
 
-- P5, P6, P7, P9 and the quick-find half of P2 — the 0.0.3 walkthrough.
+- Which week 4 January falls in (P5 — the week rule), the refusal shape of an
+  aggregate the server cannot run (P7), a personal view through `userquery`,
+  a Choice's option colours on a real form (Z3), and `none` reaching the
+  resolver on the form (Z1 — Y2 did not settle it).
 - **That `ManyToOneRelationships` for contact → account lists
   `parentcustomerid` and `accountid`, and that the rows pick the first.**
   The resolver is measured on the rig; W3 measures it on the form.

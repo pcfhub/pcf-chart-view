@@ -195,7 +195,7 @@ export const ChartViewControl: React.FC<IProps> = (props) => {
                     console.warn(
                         `ChartView: on a subgrid of ${route.entity} under ${parent.record.entityType}, the lookup relating the rows to the record could not be settled`
                         + (resolution.candidates.length > 0 ? ` (candidates: ${resolution.candidates.join(', ')})` : ' (no lookup to the parent table was found)')
-                        + '; the loaded rows are shown. Set the Parent lookup property to the column.',
+                        + `; the loaded rows are shown. Parent lookup reads as ${parent.explicit === null ? 'blank' : `"${parent.explicit}"`}: set it to the column, or to "none" for a subgrid that is not related.`,
                     );
 
                     return null;
