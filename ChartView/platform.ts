@@ -102,6 +102,21 @@ export function resolveRoles(dataset: DataSet): Roles {
 const oneOf = <T extends string>(raw: unknown, allowed: readonly T[], fallback: T): T =>
     (allowed as readonly string[]).indexOf(String(raw ?? '')) !== -1 ? (raw as T) : fallback;
 
+/**
+ * `parentLookup` as typed: a logical name, `'none'` (the maker says the
+ * subgrid is not related to the record — chart the whole view), or `null`
+ * for blank and anything else.
+ */
+export function parentLookupOf(raw: unknown): string | null {
+    if (typeof raw !== 'string') {
+        return null;
+    }
+
+    const value = raw.trim().toLowerCase();
+
+    return value === 'none' || isLogicalName(value) ? value : null;
+}
+
 /** The default height when the maker left the property blank. */
 export const DEFAULT_HEIGHT = 280;
 
@@ -121,7 +136,7 @@ export function readSettings(context: ComponentFramework.Context<IInputs>): Sett
         legend: oneOf<LegendMode>(p.legend?.raw, ['auto', 'show', 'hide'], 'auto'),
         title: typeof p.title?.raw === 'string' ? p.title.raw.trim() : '',
         height: height !== null && height >= 80 ? Math.min(Math.trunc(height), 2000) : DEFAULT_HEIGHT,
-        parentLookup: typeof p.parentLookup?.raw === 'string' && isLogicalName(p.parentLookup.raw.trim().toLowerCase()) ? p.parentLookup.raw.trim().toLowerCase() : null,
+        parentLookup: parentLookupOf(p.parentLookup?.raw),
     };
 }
 

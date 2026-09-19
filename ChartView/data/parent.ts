@@ -13,7 +13,8 @@
  *
  * So the column is found three ways, in order, and the fourth is honesty:
  *
- *   1. the maker said — `parentLookup`, a logical name;
+ *   1. the maker said — `parentLookup`, a logical name, or `none` for a
+ *      subgrid that is not related to the record at all;
  *   2. the table's `ManyToOneRelationships` name exactly one lookup whose
  *      target is the form's table;
  *   3. several do, and exactly one of them is in the loaded rows with the
@@ -70,6 +71,11 @@ export interface ParentResolution {
 
 /** The four steps, as one promise that never rejects. */
 export async function resolveParentLookup(parent: ParentReading): Promise<ParentResolution> {
+    if (parent.explicit === 'none') {
+        // The maker says so: a subgrid that is not related to the record (X4 — the rows could not).
+        return { column: null, by: 'unrelated', candidates: [] };
+    }
+
     if (parent.explicit !== null) {
         return { column: parent.explicit, by: 'explicit', candidates: [] };
     }

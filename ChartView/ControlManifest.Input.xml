@@ -12,7 +12,7 @@
   -->
   <control namespace="PCFHub"
            constructor="ChartView"
-           version="0.0.4"
+           version="0.0.5"
            display-name-key="ChartView_Name"
            description-key="ChartView_Desc"
            control-type="virtual">
@@ -266,8 +266,12 @@
       the table has exactly one lookup to the form's table, or when the
       loaded rows single one out; this input settles the case where it
       cannot (a custom table with two lookups to the parent and neither in
-      the view). A logical name, e.g. parentcustomerid. Ignored on a main
-      grid and in canvas, where there is no parent record.
+      the view). A logical name, e.g. parentcustomerid — or `none` for a
+      subgrid configured without "Show related records", which lists the
+      whole table and whose rows therefore name no relationship (measured,
+      X4: two candidates, one denied by the rows, one the rows could not
+      speak for). Ignored on a main grid and in canvas, where there is no
+      parent record.
     -->
     <property name="parentLookup"
               display-name-key="ParentLookup_Name"

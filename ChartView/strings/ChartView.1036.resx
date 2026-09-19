@@ -220,7 +220,7 @@
     <value>Recherche parente</value>
   </data>
   <data name="ParentLookup_Desc" xml:space="preserve">
-    <value>Dans une sous-grille : la colonne de recherche de cette table qui relie ses lignes à l'enregistrement du formulaire, p. ex. parentcustomerid. Laisser vide pour que le contrôle la trouve ; la définir quand la table a plusieurs recherches vers le parent.</value>
+    <value>Dans une sous-grille : la colonne de recherche de cette table qui relie ses lignes à l'enregistrement du formulaire, p. ex. parentcustomerid. Laisser vide pour que le contrôle la trouve ; la définir quand la table a plusieurs recherches vers le parent, ou « none » pour une sous-grille sans lien avec l'enregistrement.</value>
   </data>
   <data name="SelectedKey_Name" xml:space="preserve">
     <value>Clé sélectionnée</value>

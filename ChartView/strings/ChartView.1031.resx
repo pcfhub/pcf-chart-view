@@ -220,7 +220,7 @@
     <value>Übergeordnetes Nachschlagefeld</value>
   </data>
   <data name="ParentLookup_Desc" xml:space="preserve">
-    <value>In einem Unterraster: die Nachschlagespalte dieser Tabelle, die ihre Zeilen mit dem Datensatz des Formulars verknüpft, z. B. parentcustomerid. Leer lassen, damit das Steuerelement sie findet; setzen, wenn die Tabelle mehrere Nachschlagefelder zum übergeordneten Datensatz hat.</value>
+    <value>In einem Unterraster: die Nachschlagespalte dieser Tabelle, die ihre Zeilen mit dem Datensatz des Formulars verknüpft, z. B. parentcustomerid. Leer lassen, damit das Steuerelement sie findet; setzen, wenn die Tabelle mehrere Nachschlagefelder zum übergeordneten Datensatz hat, oder „none“ für ein Unterraster ohne Bezug zum Datensatz.</value>
   </data>
   <data name="SelectedKey_Name" xml:space="preserve">
     <value>Ausgewählter Schlüssel</value>

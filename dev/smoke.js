@@ -951,6 +951,10 @@ const parentReading = (over) => ({
 async function parentChecks() {
     check('the maker\'s input settles it without a read', (await Parent.resolveParentLookup(parentReading({ explicit: 'cll_parent' }))).by === 'explicit');
 
+    check("and 'none' says the subgrid is unrelated: the whole view, no condition", (await Parent.resolveParentLookup(parentReading({ explicit: 'none' }))).by === 'unrelated');
+
+    check("parentLookup reads a logical name or 'none', and nothing else", P.parentLookupOf(' ParentCustomerId ') === 'parentcustomerid' && P.parentLookupOf('None') === 'none' && P.parentLookupOf('Not A Name') === null && P.parentLookupOf(null) === null);
+
     const only = await Parent.resolveParentLookup(parentReading({ candidates: () => Promise.resolve(['parentcustomerid']) }));
 
     check('one lookup to the parent table is the answer', only.column === 'parentcustomerid' && only.by === 'only-candidate');

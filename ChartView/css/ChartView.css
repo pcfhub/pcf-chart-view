@@ -119,10 +119,23 @@
     transition: opacity var(--ChartView-duration) var(--ChartView-curve);
 }
 
-.ChartView-svg {
-    display: block;
+/*
+  The plot box: a flex item with no intrinsic width of its own, because its
+  only child is out of the flow. That is what lets the root shrink with the
+  host — an SVG in the flow with a width attribute holds its parent open at
+  that width for good. The height is set inline from the property.
+*/
+.ChartView-plot {
+    position: relative;
     flex: 1 1 auto;
     min-width: 0;
+}
+
+.ChartView-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
     overflow: visible;
     font-size: 12px;
 }

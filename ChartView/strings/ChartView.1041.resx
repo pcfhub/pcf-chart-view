@@ -220,7 +220,7 @@
     <value>親レコードの参照列</value>
   </data>
   <data name="ParentLookup_Desc" xml:space="preserve">
-    <value>サブグリッドの場合: このテーブルの行をフォームのレコードに関連付ける参照列 (例: parentcustomerid)。空にするとコントロールが探します。親への参照列が複数ある場合に設定します。</value>
+    <value>サブグリッドの場合: このテーブルの行をフォームのレコードに関連付ける参照列 (例: parentcustomerid)。空にするとコントロールが探します。親への参照列が複数ある場合に設定します。レコードと関連しないサブグリッドでは「none」を指定します。</value>
   </data>
   <data name="SelectedKey_Name" xml:space="preserve">
     <value>選択キー</value>

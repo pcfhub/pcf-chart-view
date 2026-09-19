@@ -1,6 +1,6 @@
 {
   "name": "pcf-chart-view",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A Dataverse view as a bar, column, pie, donut or line chart — grouped by a column, aggregated on the server.",
   "license": "MIT",
   "private": true,

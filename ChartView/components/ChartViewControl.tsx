@@ -376,6 +376,18 @@ export const ChartViewControl: React.FC<IProps> = (props) => {
                     <p className="ChartView-message">{getString('ChartView_Empty')}</p>
                 ) : (
                     <div className="ChartView-body" style={{ height: `${svgH}px` }}>
+                        {/*
+                          * The plot box is what the SVG is absolutely positioned
+                          * in, and the reason is the width. An SVG in the flow
+                          * with a width attribute props its parent up to that
+                          * width, so once the chart has been wide the root can
+                          * never measure narrower — measured on a two-column
+                          * section 2026-09-19 (X7): the chart grew with the
+                          * window and never shrank. Out of the flow it adds no
+                          * intrinsic width, the root follows the host both ways,
+                          * and the box carries the height the SVG no longer does.
+                          */}
+                        <div className="ChartView-plot" style={{ height: `${svgH}px` }}>
                         {width > 0 ? (
                             <Chart
                                 data={data}
@@ -393,6 +405,7 @@ export const ChartViewControl: React.FC<IProps> = (props) => {
                                 disabled={props.disabled}
                             />
                         ) : null}
+                        </div>
                         {showLegend ? (
                             <Legend data={data} width={legendW} formatValue={props.formatValue} selectedKey={props.selectedKey} hover={hover} onHover={setHover} onSelect={select} getString={getString} />
                         ) : null}

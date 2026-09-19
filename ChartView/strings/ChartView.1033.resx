@@ -220,7 +220,7 @@
     <value>Parent lookup</value>
   </data>
   <data name="ParentLookup_Desc" xml:space="preserve">
-    <value>On a subgrid: the lookup column on this table that relates its rows to the form's record, e.g. parentcustomerid. Leave empty to let the control find it; set it when the table has more than one lookup to the parent.</value>
+    <value>On a subgrid: the lookup column on this table that relates its rows to the form's record, e.g. parentcustomerid. Leave empty to let the control find it; set it when the table has more than one lookup to the parent, or 'none' for a subgrid that is not related to the record.</value>
   </data>
   <data name="SelectedKey_Name" xml:space="preserve">
     <value>Selected key</value>

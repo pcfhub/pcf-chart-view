@@ -80,9 +80,11 @@ the control finds the **lookup column** that relates the rows to it, and adds
    far*, and the browser console names the candidates. Set **Parent lookup**.
 
 A subgrid configured **without *Show related records*** lists the whole
-table under the record. The loaded rows then point at many parents, every
-candidate is ruled out, and the chart aggregates the whole view — which is
-what that subgrid shows.
+table under the record. Set **Parent lookup** to `none` and the chart
+aggregates the whole view, which is what that subgrid shows. (The control
+rules a lookup out when the loaded rows point elsewhere through it, but a
+lookup the view does not carry cannot be ruled out — measured, so `none`
+exists.)
 
 A *Parent lookup* naming the wrong column makes the server answer nothing
 while the rows are plainly there; the control then shows the loaded rows and

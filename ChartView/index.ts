@@ -280,6 +280,9 @@ export class ChartView implements ComponentFramework.ReactControl<IInputs, IOutp
             this.log('P8 first records', sample);
         }
 
+        // Does the host lower allocatedWidth when the window narrows? (X7 / Y1)
+        this.log('P10 allocatedWidth', { allocatedWidth: context.mode.allocatedWidth, allocatedHeight: context.mode.allocatedHeight });
+
         this.log('P3 server route', server ? { entity: server.entity, viewId: server.viewId, filterXml: server.filterXml, parent: server.parent?.record ?? null } : null);
 
         // What the platform keeps to itself about the relationship — read once, for the record.
