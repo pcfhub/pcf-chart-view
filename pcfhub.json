@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+
+  "slug": "pcf-chart-view",
+  "name": "Chart View",
+  "tagline": "A Dataverse view as a bar, column, pie, donut or line chart — grouped by a column, aggregated on the server.",
+  "category": "data",
+  "tags": ["react", "dataset", "chart", "pie", "bar", "line", "aggregate", "fetchxml", "accessible", "canvas"],
+
+  "control": {
+    "namespace": "PCFHub",
+    "constructor": "ChartView",
+    "type": "dataset",
+    "framework": "react_virtual",
+    "manifestPath": "ChartView/ControlManifest.Input.xml"
+  },
+
+  "links": {
+    "homepage": "https://github.com/pcfhub/pcf-chart-view",
+    "support": "https://github.com/pcfhub/pcf-chart-view/issues",
+    "license": "MIT"
+  },
+
+  "docs": {
+    "path": "docs"
+  },
+
+  "media": {
+    "logo": "media/logo.png",
+    "screenshots": ["media/screenshot-column.png", "media/screenshot-pie.png", "media/screenshot-line.png", "media/screenshot-narrow.png", "media/screenshot-dark.png"]
+  },
+
+  "demo": {
+    "fidelity": "limited",
+    "bundle": "out/controls/ChartView/bundle.js",
+    "styles": ["out/controls/ChartView/css/ChartView.css"],
+    "datasetFixture": "demo/records.json",
+    "limitations": [
+      "The harness has no Web API, so the server route — one aggregate over the whole view — never runs here; the chart groups the fixture's rows in the browser, which is the same route a canvas app takes. The caption says so.",
+      "The harness has no metadata, so a Choice's option colours are not read; the chart uses its own palette. On a model-driven form the option colours from the column's option set win.",
+      "The fixture's Industry column holds its labels rather than its option values, because a fixture record cannot carry both. The chart keys and labels by the text it is given, which is what a text category does on a form.",
+      "Clicking a group sets the two outputs, which the harness shows in its property panel; nothing on the demo page consumes them."
+    ],
+    "presets": [
+      {
+        "slug": "count-by-industry",
+        "name": "Count by industry",
+        "description": "Columns, one per industry, largest first.",
+        "props": { "chartType": "column", "aggregate": "count", "dateGrouping": "month", "sortBy": "value", "labels": "auto", "legend": "auto", "title": "" },
+        "isDefault": true
+      },
+      {
+        "slug": "revenue-pie",
+        "name": "Revenue by industry",
+        "description": "A pie of the annual revenue summed per industry, with a legend.",
+        "props": { "chartType": "pie", "aggregate": "sum", "dateGrouping": "month", "sortBy": "value", "labels": "auto", "legend": "auto", "title": "Revenue by industry" }
+      },
+      {
+        "slug": "top-three-donut",
+        "name": "Top three, and Other",
+        "description": "A donut keeping the three largest industries and folding the rest into Other.",
+        "props": { "chartType": "donut", "aggregate": "count", "dateGrouping": "month", "topN": 3, "sortBy": "value", "labels": "percent", "legend": "show", "title": "" }
+      },
+      {
+        "slug": "bar-by-label",
+        "name": "Bars in the category's own order",
+        "description": "Horizontal bars sorted by label rather than by size, values written beside them.",
+        "props": { "chartType": "bar", "aggregate": "count", "dateGrouping": "month", "sortBy": "label", "labels": "value", "legend": "hide", "title": "" }
+      }
+    ]
+  }
+}

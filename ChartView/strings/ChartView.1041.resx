@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Display names and descriptions for everything declared in
+    ControlManifest.Input.xml. PCFHub reads the manifest, so these strings are
+    what appear in the component's API reference on the hub as well as in the
+    maker's properties pane.
+
+    Copy this file to add a language — ChartView.3082.resx for Spanish, and so
+    on — then list it under <resources> in the manifest.
+  -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+
+  <data name="ChartView_Name" xml:space="preserve">
+    <value>グラフ ビュー</value>
+  </data>
+  <data name="ChartView_Desc" xml:space="preserve">
+    <value>Dataverse のビューを棒・縦棒・円・ドーナツ・折れ線グラフとして表示します。列でグループ化し、サーバー側で集計します。</value>
+  </data>
+  <data name="Records_DataSet_Name" xml:space="preserve">
+    <value>レコード</value>
+  </data>
+  <data name="CategoryField_Name" xml:space="preserve">
+    <value>グループ化</value>
+  </data>
+  <data name="CategoryField_Desc" xml:space="preserve">
+    <value>レコードをグループ化する列。値ごとに 1 本の棒・1 つの扇形・1 点になります。選択肢、はい/いいえ、参照、テキスト、日付の列。</value>
+  </data>
+  <data name="ValueField_Name" xml:space="preserve">
+    <value>値</value>
+  </data>
+  <data name="ValueField_Desc" xml:space="preserve">
+    <value>グループごとに合計・平均・比較する数値列。空にするとレコード数を数えます。</value>
+  </data>
+  <data name="ChartType_Name" xml:space="preserve">
+    <value>グラフの種類</value>
+  </data>
+  <data name="ChartType_Desc" xml:space="preserve">
+    <value>縦棒、横棒、円、ドーナツ、折れ線。</value>
+  </data>
+  <data name="ChartType_Column" xml:space="preserve">
+    <value>縦棒</value>
+  </data>
+  <data name="ChartType_Bar" xml:space="preserve">
+    <value>横棒</value>
+  </data>
+  <data name="ChartType_Pie" xml:space="preserve">
+    <value>円</value>
+  </data>
+  <data name="ChartType_Donut" xml:space="preserve">
+    <value>ドーナツ</value>
+  </data>
+  <data name="ChartType_Line" xml:space="preserve">
+    <value>折れ線</value>
+  </data>
+  <data name="Aggregate_Name" xml:space="preserve">
+    <value>集計</value>
+  </data>
+  <data name="Aggregate_Desc" xml:space="preserve">
+    <value>各グループに表示する値。レコード数、または値列の合計・平均・最小・最大。</value>
+  </data>
+  <data name="Aggregate_Count" xml:space="preserve">
+    <value>件数</value>
+  </data>
+  <data name="Aggregate_Sum" xml:space="preserve">
+    <value>合計</value>
+  </data>
+  <data name="Aggregate_Avg" xml:space="preserve">
+    <value>平均</value>
+  </data>
+  <data name="Aggregate_Min" xml:space="preserve">
+    <value>最小</value>
+  </data>
+  <data name="Aggregate_Max" xml:space="preserve">
+    <value>最大</value>
+  </data>
+  <data name="DateGrouping_Name" xml:space="preserve">
+    <value>日付のグループ化</value>
+  </data>
+  <data name="DateGrouping_Desc" xml:space="preserve">
+    <value>日付列でグループ化するときの区切り。他の列の種類では無視されます。</value>
+  </data>
+  <data name="DateGrouping_Day" xml:space="preserve">
+    <value>日</value>
+  </data>
+  <data name="DateGrouping_Week" xml:space="preserve">
+    <value>週</value>
+  </data>
+  <data name="DateGrouping_Month" xml:space="preserve">
+    <value>月</value>
+  </data>
+  <data name="DateGrouping_Quarter" xml:space="preserve">
+    <value>四半期</value>
+  </data>
+  <data name="DateGrouping_Year" xml:space="preserve">
+    <value>年</value>
+  </data>
+  <data name="TopN_Name" xml:space="preserve">
+    <value>上位グループ数</value>
+  </data>
+  <data name="TopN_Desc" xml:space="preserve">
+    <value>上位のグループをこの数だけ残し、残りは「その他」にまとめます。空ならすべて表示します。</value>
+  </data>
+  <data name="SortBy_Name" xml:space="preserve">
+    <value>並べ替え</value>
+  </data>
+  <data name="SortBy_Desc" xml:space="preserve">
+    <value>値の大きい順、またはカテゴリ本来の順。日付列は常に時系列です。</value>
+  </data>
+  <data name="SortBy_Value" xml:space="preserve">
+    <value>値</value>
+  </data>
+  <data name="SortBy_Label" xml:space="preserve">
+    <value>ラベル</value>
+  </data>
+  <data name="Labels_Name" xml:space="preserve">
+    <value>ラベル</value>
+  </data>
+  <data name="Labels_Desc" xml:space="preserve">
+    <value>各棒・扇形に表示する内容。自動では棒・縦棒に値、円・ドーナツに割合を表示します。</value>
+  </data>
+  <data name="Labels_Auto" xml:space="preserve">
+    <value>自動</value>
+  </data>
+  <data name="Labels_Value" xml:space="preserve">
+    <value>値</value>
+  </data>
+  <data name="Labels_Percent" xml:space="preserve">
+    <value>割合</value>
+  </data>
+  <data name="Labels_None" xml:space="preserve">
+    <value>なし</value>
+  </data>
+  <data name="Legend_Name" xml:space="preserve">
+    <value>凡例</value>
+  </data>
+  <data name="Legend_Desc" xml:space="preserve">
+    <value>凡例を表示するかどうか。自動では円・ドーナツのみ表示します。</value>
+  </data>
+  <data name="Legend_Auto" xml:space="preserve">
+    <value>自動</value>
+  </data>
+  <data name="Legend_Show" xml:space="preserve">
+    <value>表示</value>
+  </data>
+  <data name="Legend_Hide" xml:space="preserve">
+    <value>非表示</value>
+  </data>
+  <data name="Title_Name" xml:space="preserve">
+    <value>タイトル</value>
+  </data>
+  <data name="Title_Desc" xml:space="preserve">
+    <value>グラフの見出し。空ならビュー名を使います。</value>
+  </data>
+  <data name="Height_Name" xml:space="preserve">
+    <value>高さ</value>
+  </data>
+  <data name="Height_Desc" xml:space="preserve">
+    <value>グラフの高さ (ピクセル)。空なら 280。</value>
+  </data>
+  <data name="SelectedKey_Name" xml:space="preserve">
+    <value>選択キー</value>
+  </data>
+  <data name="SelectedKey_Desc" xml:space="preserve">
+    <value>最後にクリックしたグループの生の値。選択肢の番号、参照の ID、テキスト、または 2026-03 のような日付区分。未選択なら空。</value>
+  </data>
+  <data name="SelectedLabel_Name" xml:space="preserve">
+    <value>選択ラベル</value>
+  </data>
+  <data name="SelectedLabel_Desc" xml:space="preserve">
+    <value>最後にクリックしたグループのラベル (グラフの表示どおり)。未選択なら空。</value>
+  </data>
+  <data name="ChartView_Loading" xml:space="preserve">
+    <value>読み込み中…</value>
+  </data>
+  <data name="ChartView_Empty" xml:space="preserve">
+    <value>グラフにするレコードがありません。</value>
+  </data>
+  <data name="ChartView_NoCategory" xml:space="preserve">
+    <value>グループ化する列を選択してください。</value>
+  </data>
+  <data name="ChartView_Error" xml:space="preserve">
+    <value>レコードを読み込めませんでした。</value>
+  </data>
+  <data name="ChartView_Other" xml:space="preserve">
+    <value>その他</value>
+  </data>
+  <data name="ChartView_Blank" xml:space="preserve">
+    <value>(空白)</value>
+  </data>
+  <data name="ChartView_CaptionAll" xml:space="preserve">
+    <value>全 {0} 件</value>
+  </data>
+  <data name="ChartView_CaptionLoaded" xml:space="preserve">
+    <value>読み込み済みの {0} 件</value>
+  </data>
+  <data name="ChartView_CaptionRefused" xml:space="preserve">
+    <value>サーバーでこのビューを集計できませんでした。読み込み済みの {0} 件を表示しています。</value>
+  </data>
+  <data name="ChartView_Measure_Count" xml:space="preserve">
+    <value>レコード数</value>
+  </data>
+  <data name="ChartView_Measure_Sum" xml:space="preserve">
+    <value>{0} の合計</value>
+  </data>
+  <data name="ChartView_Measure_Avg" xml:space="preserve">
+    <value>{0} の平均</value>
+  </data>
+  <data name="ChartView_Measure_Min" xml:space="preserve">
+    <value>{0} の最小</value>
+  </data>
+  <data name="ChartView_Measure_Max" xml:space="preserve">
+    <value>{0} の最大</value>
+  </data>
+  <data name="ChartView_Percent" xml:space="preserve">
+    <value>{0}%</value>
+  </data>
+  <data name="ChartView_ItemLabel" xml:space="preserve">
+    <value>{0}: {1} ({2}%)</value>
+  </data>
+  <data name="ChartView_Selected" xml:space="preserve">
+    <value>選択中</value>
+  </data>
+  <data name="ChartView_Table" xml:space="preserve">
+    <value>グラフ データ</value>
+  </data>
+  <data name="ChartView_Week" xml:space="preserve">
+    <value>{1}年 第{0}週</value>
+  </data>
+  <data name="ChartView_Quarter" xml:space="preserve">
+    <value>{1}年 Q{0}</value>
+  </data>
+  <data name="ChartView_Chart" xml:space="preserve">
+    <value>{0}グラフ</value>
+  </data>
+</root>

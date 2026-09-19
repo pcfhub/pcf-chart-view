@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Display names and descriptions for everything declared in
+    ControlManifest.Input.xml. PCFHub reads the manifest, so these strings are
+    what appear in the component's API reference on the hub as well as in the
+    maker's properties pane.
+
+    Copy this file to add a language — ChartView.3082.resx for Spanish, and so
+    on — then list it under <resources> in the manifest.
+  -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+
+  <data name="ChartView_Name" xml:space="preserve">
+    <value>Vue graphique</value>
+  </data>
+  <data name="ChartView_Desc" xml:space="preserve">
+    <value>Une vue Dataverse sous forme de graphique à barres, colonnes, secteurs, anneau ou courbe — groupée par une colonne, agrégée côté serveur.</value>
+  </data>
+  <data name="Records_DataSet_Name" xml:space="preserve">
+    <value>Enregistrements</value>
+  </data>
+  <data name="CategoryField_Name" xml:space="preserve">
+    <value>Grouper par</value>
+  </data>
+  <data name="CategoryField_Desc" xml:space="preserve">
+    <value>La colonne par laquelle les enregistrements sont groupés : une barre, un secteur ou un point par valeur. Une colonne Choix, Oui/Non, Recherche, texte ou date.</value>
+  </data>
+  <data name="ValueField_Name" xml:space="preserve">
+    <value>Valeur</value>
+  </data>
+  <data name="ValueField_Desc" xml:space="preserve">
+    <value>La colonne numérique additionnée, moyennée ou comparée par groupe. Laisser vide pour compter les enregistrements.</value>
+  </data>
+  <data name="ChartType_Name" xml:space="preserve">
+    <value>Type de graphique</value>
+  </data>
+  <data name="ChartType_Desc" xml:space="preserve">
+    <value>Colonnes, barres, secteurs, anneau ou courbe.</value>
+  </data>
+  <data name="ChartType_Column" xml:space="preserve">
+    <value>Colonnes</value>
+  </data>
+  <data name="ChartType_Bar" xml:space="preserve">
+    <value>Barres</value>
+  </data>
+  <data name="ChartType_Pie" xml:space="preserve">
+    <value>Secteurs</value>
+  </data>
+  <data name="ChartType_Donut" xml:space="preserve">
+    <value>Anneau</value>
+  </data>
+  <data name="ChartType_Line" xml:space="preserve">
+    <value>Courbe</value>
+  </data>
+  <data name="Aggregate_Name" xml:space="preserve">
+    <value>Agrégat</value>
+  </data>
+  <data name="Aggregate_Desc" xml:space="preserve">
+    <value>Ce que chaque groupe affiche : le nombre d'enregistrements, ou la somme, la moyenne, le minimum ou le maximum de la colonne Valeur.</value>
+  </data>
+  <data name="Aggregate_Count" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="Aggregate_Sum" xml:space="preserve">
+    <value>Somme</value>
+  </data>
+  <data name="Aggregate_Avg" xml:space="preserve">
+    <value>Moyenne</value>
+  </data>
+  <data name="Aggregate_Min" xml:space="preserve">
+    <value>Minimum</value>
+  </data>
+  <data name="Aggregate_Max" xml:space="preserve">
+    <value>Maximum</value>
+  </data>
+  <data name="DateGrouping_Name" xml:space="preserve">
+    <value>Regroupement par date</value>
+  </data>
+  <data name="DateGrouping_Desc" xml:space="preserve">
+    <value>Comment une colonne de date est découpée quand elle sert de colonne Grouper par. Ignoré pour les autres types.</value>
+  </data>
+  <data name="DateGrouping_Day" xml:space="preserve">
+    <value>Jour</value>
+  </data>
+  <data name="DateGrouping_Week" xml:space="preserve">
+    <value>Semaine</value>
+  </data>
+  <data name="DateGrouping_Month" xml:space="preserve">
+    <value>Mois</value>
+  </data>
+  <data name="DateGrouping_Quarter" xml:space="preserve">
+    <value>Trimestre</value>
+  </data>
+  <data name="DateGrouping_Year" xml:space="preserve">
+    <value>Année</value>
+  </data>
+  <data name="TopN_Name" xml:space="preserve">
+    <value>Principaux groupes</value>
+  </data>
+  <data name="TopN_Desc" xml:space="preserve">
+    <value>Conserver ce nombre de groupes les plus grands et regrouper le reste sous « Autres ». Vide affiche tous les groupes.</value>
+  </data>
+  <data name="SortBy_Name" xml:space="preserve">
+    <value>Trier par</value>
+  </data>
+  <data name="SortBy_Desc" xml:space="preserve">
+    <value>La plus grande valeur d'abord, ou l'ordre propre de la catégorie. Une colonne de date est toujours chronologique.</value>
+  </data>
+  <data name="SortBy_Value" xml:space="preserve">
+    <value>Valeur</value>
+  </data>
+  <data name="SortBy_Label" xml:space="preserve">
+    <value>Libellé</value>
+  </data>
+  <data name="Labels_Name" xml:space="preserve">
+    <value>Étiquettes</value>
+  </data>
+  <data name="Labels_Desc" xml:space="preserve">
+    <value>Ce qui est inscrit sur chaque barre ou secteur. Auto : la valeur sur les barres et colonnes, le pourcentage sur un secteur ou un anneau.</value>
+  </data>
+  <data name="Labels_Auto" xml:space="preserve">
+    <value>Auto</value>
+  </data>
+  <data name="Labels_Value" xml:space="preserve">
+    <value>Valeur</value>
+  </data>
+  <data name="Labels_Percent" xml:space="preserve">
+    <value>Pourcentage</value>
+  </data>
+  <data name="Labels_None" xml:space="preserve">
+    <value>Aucune</value>
+  </data>
+  <data name="Legend_Name" xml:space="preserve">
+    <value>Légende</value>
+  </data>
+  <data name="Legend_Desc" xml:space="preserve">
+    <value>Si une légende est affichée. Auto n'en affiche que sur un secteur ou un anneau.</value>
+  </data>
+  <data name="Legend_Auto" xml:space="preserve">
+    <value>Auto</value>
+  </data>
+  <data name="Legend_Show" xml:space="preserve">
+    <value>Afficher</value>
+  </data>
+  <data name="Legend_Hide" xml:space="preserve">
+    <value>Masquer</value>
+  </data>
+  <data name="Title_Name" xml:space="preserve">
+    <value>Titre</value>
+  </data>
+  <data name="Title_Desc" xml:space="preserve">
+    <value>Le titre au-dessus du graphique. Vide utilise le nom de la vue.</value>
+  </data>
+  <data name="Height_Name" xml:space="preserve">
+    <value>Hauteur</value>
+  </data>
+  <data name="Height_Desc" xml:space="preserve">
+    <value>La hauteur du graphique en pixels. Vide vaut 280.</value>
+  </data>
+  <data name="SelectedKey_Name" xml:space="preserve">
+    <value>Clé sélectionnée</value>
+  </data>
+  <data name="SelectedKey_Desc" xml:space="preserve">
+    <value>La valeur brute du groupe cliqué en dernier — le numéro d'un Choix, l'ID d'une Recherche, le texte, ou une période comme 2026-03. Vide si rien n'est sélectionné.</value>
+  </data>
+  <data name="SelectedLabel_Name" xml:space="preserve">
+    <value>Libellé sélectionné</value>
+  </data>
+  <data name="SelectedLabel_Desc" xml:space="preserve">
+    <value>Le libellé du groupe cliqué en dernier, tel qu'affiché. Vide si rien n'est sélectionné.</value>
+  </data>
+  <data name="ChartView_Loading" xml:space="preserve">
+    <value>Chargement…</value>
+  </data>
+  <data name="ChartView_Empty" xml:space="preserve">
+    <value>Aucun enregistrement à représenter.</value>
+  </data>
+  <data name="ChartView_NoCategory" xml:space="preserve">
+    <value>Choisissez une colonne pour grouper.</value>
+  </data>
+  <data name="ChartView_Error" xml:space="preserve">
+    <value>Les enregistrements n'ont pas pu être chargés.</value>
+  </data>
+  <data name="ChartView_Other" xml:space="preserve">
+    <value>Autres</value>
+  </data>
+  <data name="ChartView_Blank" xml:space="preserve">
+    <value>(vide)</value>
+  </data>
+  <data name="ChartView_CaptionAll" xml:space="preserve">
+    <value>Les {0} enregistrements</value>
+  </data>
+  <data name="ChartView_CaptionLoaded" xml:space="preserve">
+    <value>Les {0} enregistrements chargés jusqu'ici</value>
+  </data>
+  <data name="ChartView_CaptionRefused" xml:space="preserve">
+    <value>Le serveur n'a pas pu agréger cette vue ; les {0} enregistrements chargés sont affichés.</value>
+  </data>
+  <data name="ChartView_Measure_Count" xml:space="preserve">
+    <value>Nombre d'enregistrements</value>
+  </data>
+  <data name="ChartView_Measure_Sum" xml:space="preserve">
+    <value>Somme de {0}</value>
+  </data>
+  <data name="ChartView_Measure_Avg" xml:space="preserve">
+    <value>Moyenne de {0}</value>
+  </data>
+  <data name="ChartView_Measure_Min" xml:space="preserve">
+    <value>Minimum de {0}</value>
+  </data>
+  <data name="ChartView_Measure_Max" xml:space="preserve">
+    <value>Maximum de {0}</value>
+  </data>
+  <data name="ChartView_Percent" xml:space="preserve">
+    <value>{0} %</value>
+  </data>
+  <data name="ChartView_ItemLabel" xml:space="preserve">
+    <value>{0} : {1} ({2} %)</value>
+  </data>
+  <data name="ChartView_Selected" xml:space="preserve">
+    <value>Sélectionné</value>
+  </data>
+  <data name="ChartView_Table" xml:space="preserve">
+    <value>Données du graphique</value>
+  </data>
+  <data name="ChartView_Week" xml:space="preserve">
+    <value>S{0} {1}</value>
+  </data>
+  <data name="ChartView_Quarter" xml:space="preserve">
+    <value>T{0} {1}</value>
+  </data>
+  <data name="ChartView_Chart" xml:space="preserve">
+    <value>Graphique {0}</value>
+  </data>
+</root>

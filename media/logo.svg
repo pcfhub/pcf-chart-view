@@ -1,0 +1,35 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- A donut with one slice pulled out.
+
+       The one silhouette everybody reads as "a chart of parts": a ring with a
+       quarter missing, and the quarter sitting just outside it. No frame and
+       no axes, because a chart's own shape is the mark, and the pulled slice
+       is what tells it apart from a circle, a wheel or a progress ring at
+       24px.
+
+       Rejected: three rising bars (a signal-strength icon at 24px, and the
+       Sparkline mark already owns "a line going up"); a pie with the slices
+       drawn as lines (the lines close up into a grey disc by 32); a bar and a
+       pie side by side (two objects, and neither survives 24).
+
+       The ramp is the PCFHub mark's own, verbatim, declared in userSpaceOnUse
+       across the whole canvas so the ring and the slice read as one object
+       lit from the top right. Two weights and no second hue: the ramp, and
+       nothing else, because a slice needs no white on it.
+
+       Drawn for 32px: the ring is 20 wide so its hole survives, the gap is a
+       full quarter so it does not close, and the slice sits 7 units out,
+       which is the least that still reads as a gap at 24.
+
+       Note: no double hyphen may appear in this comment, or the whole document
+       fails to parse as XML. -->
+  <defs>
+    <linearGradient id="chart-view-ramp" x1="4" y1="80" x2="92" y2="16" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A684FF"/><stop offset="0.6" stop-color="#7C86FF"/><stop offset="1" stop-color="#00BCFF"/>
+    </linearGradient>
+  </defs>
+  <!-- The ring, three quarters: from twelve o'clock round to three o'clock, the long way. -->
+  <path d="M44 14 A34 34 0 1 0 78 48 L58 48 A14 14 0 1 1 44 34 Z" fill="url(#chart-view-ramp)"/>
+  <!-- The quarter, pulled out along its bisector. -->
+  <path d="M51 7 A34 34 0 0 1 85 41 L65 41 A14 14 0 0 0 51 27 Z" fill="url(#chart-view-ramp)"/>
+</svg>

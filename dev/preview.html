@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<!--
+  The control, rendered in a real browser, for looking at.
+
+      npm run build
+      npm run harness            (dev/serve.js — the page fetches demo/records.json, which file:// refuses)
+      then open http://localhost:<port>/dev/preview.html?…  or point headless Chrome at it
+
+  ---
+
+  **Why this exists alongside `smoke.js`.** That file loads the same bundle in
+  Node and asserts what the control *decided*. This one renders it, and the two
+  answer different questions: the suite cannot see that the value labels on
+  narrow columns pile onto each other, or that the legend's percentages do not
+  line up — a picture can.
+
+  **And why it is a browser page rather than `react-dom/server`.** The chart's
+  numbers come from an effect — the server route asks the rig's Web API for the
+  view's definition and then for the aggregate — and its width from a
+  ResizeObserver. Neither runs under the server renderer, so a server-rendered
+  picture can only ever show the loading state.
+
+  The Fluent components are stubbed: `FluentProvider` becomes a `<div>` and the
+  theme is empty, so every `var(--colorX, fallback)` in the stylesheet resolves
+  to its literal fallback. That is the light theme, and it is the honest limit
+  of this page.
+
+  Query parameters, all optional:
+
+    ?type=column|bar|pie|donut|line
+    ?aggregate=count|sum|avg|min|max     sum and the rest need the value role — see ?value
+    ?value=0                             unmap the value role (count only)
+    ?category=industrycode|ownerid|createdon|modifiedon|name|statecode
+                                         which column plays the category role
+    ?grouping=day|week|month|quarter|year
+    ?topN=3  ?sort=value|label  ?labels=auto|value|percent|none  ?legend=auto|show|hide
+    ?title=…  ?height=280  ?page=12              (the platform's page size)
+    ?host=canvas                         no Web API, no metadata: the browser route
+    ?refused=1                           the server refuses the aggregate
+    ?hostfilter=1                        a host filter in force (statecode = 0)
+    ?zone=-300                           the user's zone offset, minutes
+    ?dark=1                              the dark fallbacks
+    ?rtl=1
+    ?disabled=1
+    ?state=loading|empty|error
+    ?fixture=demo                        the hub's demo fixture instead of dev/fixture.js
+    ?select=<key>                        press one group after mount
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chart View — preview</title>
+    <link rel="stylesheet" href="../out/controls/ChartView/css/ChartView.css" />
+    <style>
+        body { margin: 0; padding: 16px; background: #ffffff; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body.is-dark { background: #292929; }
+        #root { max-width: 100%; }
+        /* A headless screenshot is taken while a transition started at load is still at t=0. */
+        * { transition: none !important; }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="../node_modules/react/umd/react.development.js"></script>
+<script src="../node_modules/react-dom/umd/react-dom.development.js"></script>
+<script src="fixture.js"></script>
+<script src="host.js"></script>
+
+<script>
+    window.Reactv16 = window.React;
+    window.FluentUIReactv940 = {
+        FluentProvider: function (props) {
+            return React.createElement('div', { dir: props.dir }, props.children);
+        },
+        webLightTheme: {},
+        webDarkTheme: {},
+    };
+
+    var registration = window.__pcfHost.captureRegistration(window);
+</script>
+
+<script src="../out/controls/ChartView/bundle.js"></script>
+
+<script>
+    (async function () {
+        'use strict';
+
+        var host = window.__pcfHost;
+        var fixture = window.__pcfFixture;
+        var params = new URLSearchParams(window.location.search);
+        var root = document.getElementById('root');
+
+        if (typeof registration.ctor !== 'function') {
+            root.textContent = 'The bundle registered no control. Run npm run build.';
+
+            return;
+        }
+
+        if (params.get('fixture') === 'demo') {
+            var response = await fetch('../demo/records.json');
+
+            fixture = await response.json();
+        }
+
+        if (params.get('dark') === '1') {
+            document.body.classList.add('is-dark');
+        }
+
+        var number = function (name) {
+            var raw = params.get(name);
+
+            return raw === null || raw === '' ? null : Number(raw);
+        };
+
+        /*
+          The category role, moved to whichever column the query names. A role
+          is found by alias, so this is a column list with one alias swapped —
+          the same move a maker makes in the form designer.
+        */
+        var category = params.get('category');
+        var columns = (fixture.columns || []).map(function (column) {
+            var copy = Object.assign({}, column);
+
+            if (category) {
+                if (copy.alias === 'categoryField') {
+                    copy.alias = copy.name;
+                }
+
+                if (copy.name === category) {
+                    copy.alias = 'categoryField';
+                }
+            }
+
+            if (params.get('value') === '0' && copy.alias === 'valueField') {
+                copy.alias = copy.name;
+            }
+
+            return copy;
+        });
+
+        var state = params.get('state');
+        var handle = host.createHost(fixture, {
+            host: params.get('host') === 'canvas' ? 'canvas' : 'model-driven',
+            width: window.innerWidth - 32,
+            // The platform's page size: the demo fixture on one page, the rig's on three.
+            pageSize: number('page') || (params.get('fixture') === 'demo' ? 50 : 5),
+            columns: columns,
+            dark: params.get('dark') === '1' ? true : undefined,
+            rtl: params.get('rtl') === '1',
+            disabled: params.get('disabled') === '1',
+            loading: state === 'loading',
+            error: state === 'error',
+            records: state === 'empty' ? [] : null,
+            aggregateRefused: params.get('refused') === '1',
+            hostFilter: params.get('hostfilter') === '1'
+                ? { conditions: [{ attributeName: 'statecode', conditionOperator: 0, value: '0' }], filterOperator: 0 }
+                : null,
+            userTimeZoneOffset: number('zone') === null ? undefined : number('zone'),
+            inputs: {
+                chartType: params.get('type') || 'column',
+                aggregate: params.get('aggregate') || 'count',
+                dateGrouping: params.get('grouping') || 'month',
+                topN: number('topN'),
+                sortBy: params.get('sort') || 'value',
+                labels: params.get('labels') || 'auto',
+                legend: params.get('legend') || 'auto',
+                title: params.get('title'),
+                height: number('height'),
+            },
+        });
+
+        var instance = new registration.ctor();
+        var painting = false;
+
+        function paint() {
+            if (painting) {
+                return;
+            }
+
+            painting = true;
+
+            try {
+                ReactDOM.render(host.drive(instance, handle, 10).element, root);
+            } finally {
+                painting = false;
+            }
+        }
+
+        instance.init(handle.context, paint, {}, root);
+        paint();
+
+        // A group to press after the effects have landed, for a picture of the selected state.
+        var select = params.get('select');
+
+        if (select) {
+            setTimeout(function () {
+                var marks = document.querySelectorAll('.ChartView-mark');
+
+                for (var i = 0; i < marks.length; i += 1) {
+                    if ((marks[i].getAttribute('aria-label') || '').indexOf(select) === 0) {
+                        marks[i].dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                        break;
+                    }
+                }
+            }, 300);
+        }
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+{
+    "targetEntityType": "account",
+    "title": "Active Accounts",
+    "columns": [
+        {
+            "name": "name",
+            "displayName": "Account name",
+            "dataType": "SingleLine.Text",
+            "alias": "name",
+            "order": 0,
+            "visualSizeFactor": 200,
+            "isPrimary": true
+        },
+        {
+            "name": "accountnumber",
+            "displayName": "Account number",
+            "dataType": "SingleLine.Text",
+            "alias": "accountnumber",
+            "order": 1,
+            "visualSizeFactor": 120
+        },
+        {
+            "name": "industrycode",
+            "displayName": "Industry",
+            "dataType": "OptionSet",
+            "alias": "categoryField",
+            "order": 2,
+            "visualSizeFactor": 120
+        },
+        {
+            "name": "revenue",
+            "displayName": "Annual revenue",
+            "dataType": "Currency",
+            "alias": "valueField",
+            "order": 3,
+            "visualSizeFactor": 120
+        },
+        {
+            "name": "ownerid",
+            "displayName": "Owner",
+            "dataType": "Lookup.Owner",
+            "alias": "ownerid",
+            "order": 4,
+            "visualSizeFactor": 120
+        },
+        {
+            "name": "createdon",
+            "displayName": "Created on",
+            "dataType": "DateAndTime.DateAndTime",
+            "alias": "createdon",
+            "order": 5,
+            "visualSizeFactor": 130
+        },
+        {
+            "name": "statecode",
+            "displayName": "Status",
+            "dataType": "OptionSet",
+            "alias": "statecode",
+            "order": 6,
+            "visualSizeFactor": 90
+        }
+    ],
+    "records": [
+        {
+            "id": "a0001",
+            "values": {
+                "name": "Fabrikam Manufacturing",
+                "accountnumber": "ACC-1040",
+                "statecode": "Active",
+                "industrycode": "Manufacturing",
+                "ownerid": "Sam Vaziri",
+                "revenue": 1250000,
+                "createdon": "2026-01-12T12:00:00"
+            }
+        },
+        {
+            "id": "a0002",
+            "values": {
+                "name": "Contoso Logistics",
+                "accountnumber": "ACC-1047",
+                "statecode": "Active",
+                "industrycode": "Manufacturing",
+                "ownerid": "Jo Park",
+                "revenue": 480000,
+                "createdon": "2026-01-28T12:00:00"
+            }
+        },
+        {
+            "id": "a0003",
+            "values": {
+                "name": "Northwind Traders",
+                "accountnumber": "ACC-1054",
+                "statecode": "Active",
+                "industrycode": "Technology",
+                "ownerid": "Sam Vaziri",
+                "revenue": 92000,
+                "createdon": "2026-02-03T12:00:00"
+            }
+        },
+        {
+            "id": "a0004",
+            "values": {
+                "name": "Adventure Works Cycles",
+                "accountnumber": "ACC-1061",
+                "statecode": "Active",
+                "industrycode": "Retail",
+                "ownerid": "Jo Park",
+                "revenue": 730000,
+                "createdon": "2026-02-17T12:00:00"
+            }
+        },
+        {
+            "id": "a0005",
+            "values": {
+                "name": "Litware Consulting",
+                "accountnumber": "ACC-1068",
+                "statecode": "Active",
+                "industrycode": "Manufacturing",
+                "ownerid": "Sam Vaziri",
+                "revenue": 150000,
+                "createdon": "2026-02-24T12:00:00"
+            }
+        },
+        {
+            "id": "a0006",
+            "values": {
+                "name": "Tailspin Toys",
+                "accountnumber": "ACC-1075",
+                "statecode": "Active",
+                "industrycode": "Technology",
+                "ownerid": "Jo Park",
+                "revenue": 61000,
+                "createdon": "2026-03-05T12:00:00"
+            }
+        },
+        {
+            "id": "a0007",
+            "values": {
+                "name": "Proseware Systems",
+                "accountnumber": "ACC-1082",
+                "statecode": "Active",
+                "industrycode": "Services",
+                "ownerid": "Sam Vaziri",
+                "revenue": 2100000,
+                "createdon": "2026-03-11T12:00:00"
+            }
+        },
+        {
+            "id": "a0008",
+            "values": {
+                "name": "Wingtip Analytics",
+                "accountnumber": "ACC-1089",
+                "statecode": "Active",
+                "industrycode": "Manufacturing",
+                "ownerid": "Jo Park",
+                "revenue": 405000,
+                "createdon": "2026-03-19T12:00:00"
+            }
+        },
+        {
+            "id": "a0009",
+            "values": {
+                "name": "Blue Yonder Airlines",
+                "accountnumber": "ACC-1096",
+                "statecode": "Active",
+                "industrycode": "Retail",
+                "ownerid": "Sam Vaziri",
+                "revenue": null,
+                "createdon": "2026-03-27T12:00:00"
+            }
+        },
+        {
+            "id": "a0010",
+            "values": {
+                "name": "Consolidated Messenger",
+                "accountnumber": "ACC-1103",
+                "statecode": "Active",
+                "industrycode": "Technology",
+                "ownerid": "Jo Park",
+                "revenue": 3300000,
+                "createdon": "2026-04-02T12:00:00"
+            }
+        },
+        {
+            "id": "a0011",
+            "values": {
+                "name": "Woodgrove Bank",
+                "accountnumber": "ACC-1110",
+                "statecode": "Active",
+                "industrycode": "Healthcare",
+                "ownerid": "Sam Vaziri",
+                "revenue": 15000,
+                "createdon": "2026-04-15T12:00:00"
+            }
+        },
+        {
+            "id": "a0012",
+            "values": {
+                "name": "Alpine Ski House",
+                "accountnumber": "ACC-1117",
+                "statecode": "Active",
+                "industrycode": "Manufacturing",
+                "ownerid": "Jo Park",
+                "revenue": 88000,
+                "createdon": "2026-05-06T12:00:00"
+            }
+        },
+        {
+            "id": "a0013",
+            "values": {
+                "name": "Coho Winery",
+                "accountnumber": "ACC-1124",
+                "statecode": "Active",
+                "industrycode": "Technology",
+                "ownerid": "Sam Vaziri",
+                "revenue": 540000,
+                "createdon": "2026-05-20T12:00:00"
+            }
+        },
+        {
+            "id": "a0014",
+            "values": {
+                "name": "Fourth Coffee",
+                "accountnumber": "ACC-1131",
+                "statecode": "Active",
+                "industrycode": "Retail",
+                "ownerid": "Jo Park",
+                "revenue": 210000,
+                "createdon": "2026-06-01T12:00:00"
+            }
+        },
+        {
+            "id": "a0015",
+            "values": {
+                "name": "Lucerne Publishing",
+                "accountnumber": "ACC-1138",
+                "statecode": "Active",
+                "industrycode": "Services",
+                "ownerid": "Sam Vaziri",
+                "revenue": 97000,
+                "createdon": "2026-06-14T12:00:00"
+            }
+        },
+        {
+            "id": "a0016",
+            "values": {
+                "name": "Margie's Travel",
+                "accountnumber": "ACC-1145",
+                "statecode": "Active",
+                "industrycode": null,
+                "ownerid": "Jo Park",
+                "revenue": 132000,
+                "createdon": "2026-06-30T12:00:00"
+            }
+        }
+    ]
+}

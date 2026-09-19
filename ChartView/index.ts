@@ -1,0 +1,278 @@
+import * as React from 'react';
+import { IInputs, IOutputs } from './generated/ManifestTypes';
+import { ChartViewControl, IProps, ServerRoute } from './components/ChartViewControl';
+import {
+    dateLabelsOf,
+    filterOf,
+    hasMoreRows,
+    metadataLoader,
+    MetadataReading,
+    numberFormatter,
+    offsetReader,
+    readRecords,
+    readSettings,
+    resolveRoles,
+    viewIdOf,
+    webApiOf,
+} from './platform';
+import { filterToFetchXml } from './query/fetchXml';
+
+type DataSet = ComponentFramework.PropertyTypes.DataSet;
+
+/**
+ * A 0.0.x build logs what the form answers to the questions in SPEC.md, under
+ * one prefix, once per distinct payload. Off in a release: the constant is
+ * flipped in the same commit as the version.
+ */
+const PROBE = true;
+
+/**
+ * A Dataverse view as a chart.
+ *
+ * Everything that talks to the platform lives in this file and `platform.ts`.
+ * The component never sees `context` or the dataset — every reading reaches it
+ * as a prop and every platform call as a function it may invoke. Two routes
+ * are prepared here on every pass and the component picks between them:
+ *
+ *   - **the server route** — `context.webAPI` present, the category mapped,
+ *     the dataset's runtime filter spellable in FetchXML — one aggregate
+ *     query over the whole view, so the numbers are the view's;
+ *   - **the browser route** — always — the loaded rows read into one reading
+ *     per record, which is what canvas gets and what stands in when the
+ *     server refuses.
+ *
+ * `updateView` runs on every change to any bound value. Nothing here mutates
+ * the dataset — no `refresh`, no `setFilter`, no paging — so there is no
+ * loop to guard against; the one thing this class remembers between passes
+ * is the fetch counter the component re-aggregates on.
+ */
+export class ChartView implements ComponentFramework.ReactControl<IInputs, IOutputs> {
+    private notifyOutputChanged!: () => void;
+    private selectedKey = '';
+    private selectedLabel = '';
+
+    /** Bumped when the platform finishes a fetch — `loading` going from true to false. */
+    private refreshToken = 0;
+    private wasLoading = false;
+
+    /** The metadata loader, kept per key so the component's effect sees one function per key. */
+    private metadataKey = '';
+    private metadata: (() => Promise<MetadataReading>) | null = null;
+
+    private probed = new Set<string>();
+
+    public init(_context: ComponentFramework.Context<IInputs>, notifyOutputChanged: () => void): void {
+        // No container: a virtual control never receives one.
+        this.notifyOutputChanged = notifyOutputChanged;
+    }
+
+    public updateView(context: ComponentFramework.Context<IInputs>): React.ReactElement {
+        const dataset = context.parameters.records;
+        const getString = (id: string): string => context.resources.getString(id);
+        const roles = resolveRoles(dataset);
+        const settings = readSettings(context);
+        const entity = safeEntity(dataset);
+
+        if (this.wasLoading && !dataset.loading) {
+            this.refreshToken += 1;
+        }
+
+        this.wasLoading = Boolean(dataset.loading);
+
+        const dateLabels = dateLabelsOf(context, getString);
+        const readings = roles.category ? readRecords(dataset, roles, settings.dateGrouping, offsetReader(context), dateLabels) : [];
+        const loaded = readings.length;
+        const server = this.serverRoute(context, dataset, entity, roles, settings);
+        const metaKey = `${entity}|${roles.category}`;
+
+        if (metaKey !== this.metadataKey) {
+            this.metadataKey = metaKey;
+            this.metadata = metadataLoader(context, entity, roles.category);
+        }
+
+        this.probe(context, dataset, entity, roles, server);
+
+        const props: IProps = {
+            roles,
+            settings,
+            readings,
+            loaded,
+            hasMore: hasMoreRows(dataset, loaded),
+            loading: Boolean(dataset.loading),
+            error: Boolean(dataset.error),
+            server,
+            refreshToken: this.refreshToken,
+            metadata: this.metadata,
+            metadataKey: metaKey,
+            dateLabels,
+            viewTitle: safeTitle(dataset),
+            selectedKey: this.selectedKey,
+            onSelect: (key: string, label: string): void => this.select(key, label),
+            getString,
+            formatValue: numberFormatter(context, roles.valueKind, roles.value === null ? 'count' : settings.aggregate),
+            // Typed as of @types/powerapps-component-framework 1.3.18; absent
+            // in PCFHub's demo harness, which is why the component falls back
+            // to Fluent's own themes by `dark`.
+            theme: context.fluentDesignLanguage?.tokenTheme,
+            dark: context.fluentDesignLanguage?.isDarkTheme,
+            isRTL: context.userSettings.isRTL,
+            disabled: context.mode.isControlDisabled,
+            visible: context.mode.isVisible,
+            onProbe: PROBE ? (label, payload): void => this.log(label, payload) : undefined,
+        };
+
+        return React.createElement(ChartViewControl, props);
+    }
+
+    /**
+     * The empty string is the observable clear: the generated `IOutputs`
+     * types both as optional, and `undefined` means "no change".
+     */
+    public getOutputs(): IOutputs {
+        return { selectedKey: this.selectedKey, selectedLabel: this.selectedLabel };
+    }
+
+    public destroy(): void {
+        // The platform unmounts the React tree for a virtual control, and this
+        // control holds no listeners, timers or observers of its own — the
+        // component's ResizeObserver is released by its own effect.
+    }
+
+    /** Click a group to select it; click it again to clear. Notified before anything else happens. */
+    private select(key: string, label: string): void {
+        if (key === this.selectedKey) {
+            this.selectedKey = '';
+            this.selectedLabel = '';
+        } else {
+            this.selectedKey = key;
+            this.selectedLabel = label;
+        }
+
+        this.notifyOutputChanged();
+    }
+
+    /**
+     * The server route, or `null`. The runtime filter is what the user has
+     * done to the view since it loaded — quick find, a column filter, and on
+     * a subgrid possibly the relationship to the parent record (SPEC.md P2
+     * asks). A filter with an operator this control cannot spell means the
+     * server would answer a different question, so the route is withheld and
+     * the caption says the numbers are the loaded rows'.
+     */
+    private serverRoute(
+        context: ComponentFramework.Context<IInputs>,
+        dataset: DataSet,
+        entity: string,
+        roles: ReturnType<typeof resolveRoles>,
+        settings: ReturnType<typeof readSettings>,
+    ): ServerRoute | null {
+        const api = webApiOf(context);
+
+        if (!api || !entity || !roles.category || roles.categoryKind === 'unknown') {
+            return null;
+        }
+
+        const filter = filterToFetchXml(filterOf(dataset));
+
+        if (!filter.translatable) {
+            return null;
+        }
+
+        const viewId = viewIdOf(dataset);
+        const key = [entity, roles.category, roles.categoryKind, roles.value ?? '', settings.aggregate, settings.dateGrouping, viewId, filter.xml].join('|');
+
+        return { api, entity, viewId, filterXml: filter.xml, key };
+    }
+
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    private probe(context: ComponentFramework.Context<IInputs>, dataset: DataSet, entity: string, roles: ReturnType<typeof resolveRoles>, server: ServerRoute | null): void {
+        if (!PROBE) {
+            return;
+        }
+
+        const ds: any = dataset;
+
+        this.log('P1 dataset surface', {
+            keys: Object.keys(ds),
+            paging: ds.paging ? Object.keys(ds.paging) : null,
+            filtering: ds.filtering ? Object.keys(ds.filtering) : null,
+            linking: ds.linking ? Object.keys(ds.linking) : null,
+            entity,
+            viewId: viewIdOf(dataset),
+            title: safeTitle(dataset),
+            contextInfo: (context.mode as any)?.contextInfo ?? null,
+        });
+
+        try {
+            this.log('P2 filtering.getFilter()', ds.filtering && typeof ds.filtering.getFilter === 'function' ? ds.filtering.getFilter() : 'no getFilter');
+        } catch (error) {
+            this.log('P2 filtering.getFilter() threw', String(error));
+        }
+
+        try {
+            this.log('P2 linking.getLinkedEntities()', ds.linking && typeof ds.linking.getLinkedEntities === 'function' ? ds.linking.getLinkedEntities() : 'no getLinkedEntities');
+        } catch (error) {
+            this.log('P2 linking threw', String(error));
+        }
+
+        const category = (dataset.columns ?? []).find((c) => c.alias === 'categoryField');
+        const value = (dataset.columns ?? []).find((c) => c.alias === 'valueField');
+
+        this.log('P8 role columns', { category, value, roles });
+
+        if (!dataset.loading && roles.category) {
+            const sample = (dataset.sortedRecordIds ?? []).slice(0, 3).map((id) => {
+                const record: any = dataset.records[id];
+                return {
+                    category: record?.getValue?.(roles.category),
+                    categoryFormatted: record?.getFormattedValue?.(roles.category),
+                    value: roles.value ? record?.getValue?.(roles.value) : undefined,
+                };
+            });
+
+            this.log('P8 first records', sample);
+        }
+
+        this.log('P3 server route', server ? { entity: server.entity, viewId: server.viewId, filterXml: server.filterXml } : null);
+    }
+
+    /** One line per distinct payload, so a repaint does not repeat the answers. */
+    private log(label: string, payload: unknown): void {
+        let text: string;
+
+        try {
+            text = JSON.stringify(payload, (_key, v) => (typeof v === 'function' ? '[function]' : v));
+        } catch {
+            text = String(payload);
+        }
+
+        const stamp = `${label}:${text}`;
+
+        if (this.probed.has(stamp)) {
+            return;
+        }
+
+        this.probed.add(stamp);
+        console.info(`[ChartView probe] ${label}`, payload);
+    }
+    /* eslint-enable @typescript-eslint/no-explicit-any */
+}
+
+/** `getTargetEntityType()`, or `''` on a host that cannot answer. */
+function safeEntity(dataset: DataSet): string {
+    try {
+        const entity = dataset.getTargetEntityType();
+        return typeof entity === 'string' ? entity.toLowerCase() : '';
+    } catch {
+        return '';
+    }
+}
+
+function safeTitle(dataset: DataSet): string {
+    try {
+        const title = dataset.getTitle();
+        return typeof title === 'string' ? title : '';
+    } catch {
+        return '';
+    }
+}

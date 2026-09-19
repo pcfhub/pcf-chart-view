@@ -1,0 +1,345 @@
+/*
+  Every rule is scoped under .ChartView.
+
+  A code component's CSS is loaded into the whole page, not into a shadow root,
+  so an unscoped `svg text { }` here restyles the host form.
+*/
+
+/*
+  The palette, as Fluent's design tokens with literal fallbacks — the values
+  of Fluent's web light theme, read from `@fluentui/tokens`. The control sits
+  inside its own `FluentProvider` with the host's `tokenTheme`, so on a form
+  every `var()` resolves and the fallbacks are what a host that publishes no
+  tokens sees: a canvas app, or PCFHub's demo harness.
+
+  The marks themselves are not tokens: a Choice's option colours come from
+  metadata and the categorical palette is in `chart/aggregate.ts`, because a
+  chart's series colours are data, not chrome.
+*/
+.ChartView {
+    --ChartView-foreground: var(--colorNeutralForeground1, #242424);
+    --ChartView-foreground-secondary: var(--colorNeutralForeground3, #616161);
+    --ChartView-foreground-danger: var(--colorPaletteRedForeground1, #bc2f32);
+    --ChartView-background: var(--colorNeutralBackground1, #ffffff);
+    --ChartView-background-hover: var(--colorSubtleBackgroundHover, #f5f5f5);
+    --ChartView-stroke-subtle: var(--colorNeutralStroke2, #e0e0e0);
+    --ChartView-stroke-zero: var(--colorNeutralStroke1, #d1d1d1);
+    --ChartView-focus-inner: var(--colorStrokeFocus1, #ffffff);
+    --ChartView-focus-outer: var(--colorStrokeFocus2, #000000);
+    --ChartView-on-mark: #ffffff;
+    --ChartView-radius: var(--borderRadiusMedium, 4px);
+    --ChartView-duration: var(--durationFaster, 100ms);
+    --ChartView-curve: var(--curveEasyEase, cubic-bezier(0.33, 0, 0.67, 1));
+
+    font-family: var(--fontFamilyBase, "Segoe UI", system-ui, sans-serif);
+    font-size: var(--fontSizeBase300, 14px);
+    color: var(--ChartView-foreground);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingVerticalXS, 4px);
+    width: 100%;
+    /*
+      No `container-type` here, ever. Containment zeroes the root's intrinsic
+      width, and a form section is a shrink-to-fit parent: pcf-calendar-view
+      0.1.3 collapsed to a sliver on every form for exactly that. The narrow
+      layout is a class set from a ResizeObserver instead.
+    */
+}
+
+/*
+  The dark fallbacks, applied from `fluentDesignLanguage.isDarkTheme` rather
+  than `prefers-color-scheme`: a model-driven app carries its own theme and the
+  operating system's setting says nothing about it. Reached only on a host
+  publishing no tokens.
+*/
+.ChartView--dark {
+    --ChartView-foreground: var(--colorNeutralForeground1, #ffffff);
+    --ChartView-foreground-secondary: var(--colorNeutralForeground3, #adadad);
+    --ChartView-foreground-danger: var(--colorPaletteRedForeground1, #e37d80);
+    --ChartView-background: var(--colorNeutralBackground1, #292929);
+    --ChartView-background-hover: var(--colorSubtleBackgroundHover, #383838);
+    --ChartView-stroke-subtle: var(--colorNeutralStroke2, #525252);
+    --ChartView-stroke-zero: var(--colorNeutralStroke1, #666666);
+    --ChartView-focus-inner: var(--colorStrokeFocus1, #000000);
+    --ChartView-focus-outer: var(--colorStrokeFocus2, #ffffff);
+}
+
+/* ---- Header ---------------------------------------------------------- */
+
+.ChartView-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--spacingHorizontalM, 12px);
+    padding: 0 var(--spacingHorizontalXS, 4px);
+}
+
+.ChartView-title {
+    margin: 0;
+    font-size: var(--fontSizeBase300, 14px);
+    font-weight: var(--fontWeightSemibold, 600);
+    line-height: var(--lineHeightBase300, 20px);
+}
+
+/* The measure and where its numbers came from, always shown: a number without its provenance is a guess. */
+.ChartView-caption {
+    margin: 0;
+    font-size: var(--fontSizeBase200, 12px);
+    line-height: var(--lineHeightBase200, 16px);
+    color: var(--ChartView-foreground-secondary);
+}
+
+.ChartView-message {
+    margin: 0;
+    padding: var(--spacingVerticalL, 16px);
+    color: var(--ChartView-foreground-secondary);
+}
+
+.ChartView-error {
+    color: var(--ChartView-foreground-danger);
+}
+
+/* ---- Body ------------------------------------------------------------ */
+
+.ChartView-body {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: var(--spacingHorizontalM, 12px);
+    width: 100%;
+    min-width: 0;
+}
+
+/*
+  Dim while a fetch is in flight — "stale", not "unavailable". The last good
+  chart stays up rather than flashing to a spinner on every refresh.
+*/
+.ChartView.is-stale .ChartView-body {
+    opacity: 0.6;
+    transition: opacity var(--ChartView-duration) var(--ChartView-curve);
+}
+
+.ChartView-svg {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: visible;
+    font-size: 12px;
+}
+
+.ChartView-svg text {
+    fill: var(--ChartView-foreground-secondary);
+    font-family: inherit;
+    font-size: 12px;
+    user-select: none;
+}
+
+.ChartView-grid line {
+    stroke: var(--ChartView-stroke-subtle);
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+.ChartView-grid line.is-zero {
+    stroke: var(--ChartView-stroke-zero);
+}
+
+/* A line is one series, so its points take the line's colour rather than a palette entry each. */
+.ChartView-point {
+    fill: var(--colorBrandStroke1, #0f6cbd);
+}
+
+.ChartView-line {
+    stroke: var(--colorBrandStroke1, #0f6cbd);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
+/* ---- Marks ----------------------------------------------------------- */
+
+.ChartView-mark {
+    cursor: pointer;
+    outline: none;
+}
+
+.ChartView-mark rect,
+.ChartView-mark path,
+.ChartView-mark circle {
+    transition: opacity var(--ChartView-duration) var(--ChartView-curve), filter var(--ChartView-duration) var(--ChartView-curve);
+}
+
+.ChartView-mark.is-hover rect,
+.ChartView-mark.is-hover path,
+.ChartView-mark.is-hover circle {
+    filter: brightness(1.12);
+}
+
+/* A selection mutes the rest so the chosen group reads as chosen without a second colour. */
+.ChartView-mark.is-muted rect,
+.ChartView-mark.is-muted path,
+.ChartView-mark.is-muted circle {
+    opacity: 0.45;
+}
+
+/* Fluent's focus indicator: a dark ring with a light one inside it, drawn on the mark itself. */
+.ChartView-mark:focus-visible rect,
+.ChartView-mark:focus-visible path,
+.ChartView-mark:focus-visible circle {
+    stroke: var(--ChartView-focus-outer);
+    stroke-width: 2;
+    paint-order: stroke;
+}
+
+.ChartView-mark[aria-disabled="true"] {
+    cursor: default;
+}
+
+.ChartView.is-disabled .ChartView-mark {
+    cursor: default;
+}
+
+/*
+  The value written beside a bar, in the ordinary text colour. Element and
+  class together, because `.ChartView-svg text` above outranks a lone class
+  — which is how the percentages on the slices shipped grey for one build.
+*/
+.ChartView-svg text.ChartView-value {
+    fill: var(--ChartView-foreground);
+    font-weight: var(--fontWeightSemibold, 600);
+    pointer-events: none;
+}
+
+/* The percentage written on a slice, in white — every palette colour carries it. */
+.ChartView-svg text.ChartView-onMark {
+    fill: var(--ChartView-on-mark);
+    font-weight: var(--fontWeightSemibold, 600);
+    pointer-events: none;
+}
+
+.ChartView-svg .ChartView-axis text {
+    fill: var(--ChartView-foreground);
+}
+
+/* ---- Legend ---------------------------------------------------------- */
+
+.ChartView-legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow-y: auto;
+    min-width: 0;
+}
+
+.ChartView-legendButton {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: var(--spacingHorizontalS, 8px);
+    width: 100%;
+    padding: 4px 6px;
+    border: 0;
+    border-radius: var(--ChartView-radius);
+    background: transparent;
+    color: var(--ChartView-foreground);
+    font: inherit;
+    font-size: var(--fontSizeBase200, 12px);
+    line-height: var(--lineHeightBase200, 16px);
+    text-align: start;
+    cursor: pointer;
+}
+
+.ChartView-legendButton:hover,
+.ChartView-legendItem.is-hover .ChartView-legendButton {
+    background: var(--ChartView-background-hover);
+}
+
+.ChartView-legendButton:disabled {
+    cursor: default;
+    color: var(--ChartView-foreground-secondary);
+}
+
+.ChartView-legendButton:focus-visible {
+    outline: 2px solid var(--ChartView-focus-outer);
+    outline-offset: 1px;
+    box-shadow: inset 0 0 0 1px var(--ChartView-focus-inner);
+}
+
+.ChartView-legendItem.is-selected .ChartView-legendButton {
+    font-weight: var(--fontWeightSemibold, 600);
+}
+
+.ChartView-swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+.ChartView-legendLabel {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ChartView-legendValue {
+    font-variant-numeric: tabular-nums;
+}
+
+.ChartView-legendPercent {
+    color: var(--ChartView-foreground-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- Narrow ---------------------------------------------------------- */
+
+/* Set from the measured width, under 420px: the legend goes below the chart. */
+.ChartView.is-narrow .ChartView-body {
+    flex-direction: column;
+    height: auto !important;
+}
+
+.ChartView.is-narrow .ChartView-legend {
+    width: 100% !important;
+    max-height: 176px;
+}
+
+/* ---- The table a screen reader gets ---------------------------------- */
+
+.ChartView-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* ---- Two media queries that are not optional -------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .ChartView *,
+    .ChartView.is-stale .ChartView-body {
+        transition: none !important;
+    }
+}
+
+@media (forced-colors: active) {
+    .ChartView-mark rect,
+    .ChartView-mark path {
+        stroke: CanvasText;
+        stroke-width: 1;
+    }
+
+    .ChartView-swatch {
+        forced-color-adjust: none;
+    }
+
+    .ChartView-legendButton:focus-visible {
+        outline: 2px solid Highlight;
+    }
+}

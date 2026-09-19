@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest>
+  <!--
+    The version here is what the Power Platform upgrades on, and the release
+    workflow refuses to publish a tag that disagrees with it. Bump this in the
+    same commit as the tag.
+
+    0.0.x is the probe: a build that goes on the test form to ask the
+    questions in SPEC.md before the answers are assumed. Dataverse leaves a
+    control alone at the installed version, so the first real release is
+    0.1.0 and imports over it as an upgrade.
+  -->
+  <control namespace="PCFHub"
+           constructor="ChartView"
+           version="0.0.1"
+           display-name-key="ChartView_Name"
+           description-key="ChartView_Desc"
+           control-type="virtual">
+
+    <!--
+      Nothing here leaves the organisation. The aggregate is a query to the
+      environment's own Web API through `context.webAPI`, which is not an
+      external service. Leave this disabled.
+    -->
+    <external-service-usage enabled="false" />
+
+    <!--
+      Roles, deliberately — the same decision as pcf-kanban-board and
+      pcf-calendar-view, and the opposite of pcf-data-table. A chart assigns
+      meaning to exactly two columns: the one that becomes the categories and,
+      optionally, the one that is added up. It does not render "whatever the
+      view supplies", so there is nothing to read off dataset.columns.
+
+      Found on the column by `alias`, read off the record by `name`. Getting
+      that backwards renders nothing against a real view while passing a
+      fixture whose alias and name are the same string — which is why
+      dev/fixture.js and demo/records.json use realistic, different values.
+
+      No `cds-data-set-options`: a control with fixed roles wants the subgrid
+      chrome off. Its layout does not survive the maker picking a different
+      view, and the command bar would have nothing to act on — this control
+      never calls setSelectedRecordIds().
+    -->
+    <data-set name="records" display-name-key="Records_DataSet_Name">
+      <!--
+        The column the records are grouped by — one bar, slice or point per
+        distinct value.
+
+        A type group, because a chart is grouped by whatever the maker has: a
+        Choice (the common case, and the one whose option colours colour the
+        chart), a Lookup ("by owner", "by account"), a Yes/No, a text column,
+        or a date — bucketed by `dateGrouping` on the server with FetchXML's
+        `dategrouping`, and by the user's calendar in the browser. Every member
+        arrives as `string | null` off a dataset record, so the group costs the
+        generated types nothing here.
+
+        Not in the group: numbers. A chart grouped by a decimal is one bar per
+        distinct value, which is never what anybody meant.
+      -->
+      <property-set name="categoryField"
+                    display-name-key="CategoryField_Name"
+                    description-key="CategoryField_Desc"
+                    of-type-group="categories"
+                    usage="bound"
+                    required="true" />
+
+      <!--
+        The column that is added up (or averaged, or whose smallest or largest
+        value each group shows). Optional: without it the chart counts records,
+        whatever `aggregate` says, and says so in its caption.
+
+        Whole, decimal, floating and currency, because each is a number a sum
+        means something on. `Whole.None | Decimal | FP | Currency` share
+        `NumberProperty`, so this generates a typed `number | null` off the
+        record; a currency column is recognised by `dataType` so the sum can
+        be formatted with the user's currency.
+      -->
+      <property-set name="valueField"
+                    display-name-key="ValueField_Name"
+                    description-key="ValueField_Desc"
+                    of-type-group="measures"
+                    usage="bound"
+                    required="false" />
+    </data-set>
+
+    <type-group name="categories">
+      <type>OptionSet</type>
+      <type>TwoOptions</type>
+      <type>Lookup.Simple</type>
+      <type>Lookup.Owner</type>
+      <type>SingleLine.Text</type>
+      <type>DateAndTime.DateOnly</type>
+      <type>DateAndTime.DateAndTime</type>
+    </type-group>
+
+    <type-group name="measures">
+      <type>Whole.None</type>
+      <type>Decimal</type>
+      <type>FP</type>
+      <type>Currency</type>
+    </type-group>
+
+    <!--
+      Which chart. `column` is vertical bars, `bar` horizontal — the same
+      numbers, chosen by how long the category labels are. `line` joins the
+      groups in order and is the natural shape for a date category. Adding an
+      Enum value is additive; a form configured with any of these is untouched
+      by an upgrade that adds a sixth.
+    -->
+    <property name="chartType"
+              display-name-key="ChartType_Name"
+              description-key="ChartType_Desc"
+              of-type="Enum"
+              usage="input"
+              required="false"
+              default-value="column">
+      <value name="column" display-name-key="ChartType_Column">column</value>
+      <value name="bar" display-name-key="ChartType_Bar">bar</value>
+      <value name="pie" display-name-key="ChartType_Pie">pie</value>
+      <value name="donut" display-name-key="ChartType_Donut">donut</value>
+      <value name="line" display-name-key="ChartType_Line">line</value>
+    </property>
+
+    <!--
+      What each group's number is. `count` is the number of records in the
+      group and needs no value column; the other four need one, and without it
+      the chart counts and says so rather than drawing nothing. On the server
+      these are FetchXML's `aggregate='count' | 'sum' | 'avg' | 'min' | 'max'`;
+      in the browser the same arithmetic over the loaded rows.
+    -->
+    <property name="aggregate"
+              display-name-key="Aggregate_Name"
+              description-key="Aggregate_Desc"
+              of-type="Enum"
+              usage="input"
+              required="false"
+              default-value="count">
+      <value name="count" display-name-key="Aggregate_Count">count</value>
+      <value name="sum" display-name-key="Aggregate_Sum">sum</value>
+      <value name="avg" display-name-key="Aggregate_Avg">avg</value>
+      <value name="min" display-name-key="Aggregate_Min">min</value>
+      <value name="max" display-name-key="Aggregate_Max">max</value>
+    </property>
+
+    <!--
+      How a date category is bucketed. Read only when the category column is
+      a date; ignored otherwise. On the server it is FetchXML's
+      `dategrouping`, and the groups come back as the bucket's number
+      (month 1–12, quarter 1–4, week 1–53) beside a `year` group the query
+      adds so that January 2025 and January 2026 are two bars. In the browser
+      the bucket is cut on the user's calendar day — the Dataverse user's zone,
+      not the browser's — which is the one bug a chart by month makes visible.
+    -->
+    <property name="dateGrouping"
+              display-name-key="DateGrouping_Name"
+              description-key="DateGrouping_Desc"
+              of-type="Enum"
+              usage="input"
+              required="false"
+              default-value="month">
+      <value name="day" display-name-key="DateGrouping_Day">day</value>
+      <value name="week" display-name-key="DateGrouping_Week">week</value>
+      <value name="month" display-name-key="DateGrouping_Month">month</value>
+      <value name="quarter" display-name-key="DateGrouping_Quarter">quarter</value>
+      <value name="year" display-name-key="DateGrouping_Year">year</value>
+    </property>
+
+    <!--
+      Keep the N largest groups and fold the rest into one called *Other*.
+      Optional and with no default, by the template's rule: unset means every
+      group is drawn, and a `default-value` on an optional property is an
+      override, not a default. A date category is never folded — a chart by
+      month with an *Other* bucket is not a chart by month.
+    -->
+    <property name="topN"
+              display-name-key="TopN_Name"
+              description-key="TopN_Desc"
+              of-type="Whole.None"
+              usage="input"
+              required="false" />
+
+    <!--
+      The order the groups are drawn in. `value` is largest first, which is
+      what a bar chart is for; `label` is the category's own order — a
+      Choice's option order, a text column alphabetically. A date category is
+      always chronological whatever this says, because a chart by month drawn
+      largest-first is unreadable.
+    -->
+    <property name="sortBy"
+              display-name-key="SortBy_Name"
+              description-key="SortBy_Desc"
+              of-type="Enum"
+              usage="input"
+              required="false"
+              default-value="value">
+      <value name="value" display-name-key="SortBy_Value">value</value>
+      <value name="label" display-name-key="SortBy_Label">label</value>
+    </property>
+
+    <!--
+      What is written on each bar or slice. `auto` is the value on a bar or
+      column, the percentage on a pie or donut, nothing on a line — the
+      convention a reader expects of each shape. An Enum rather than a
+      TwoOptions because a TwoOptions cannot default to on.
+    -->
+    <property name="labels"
+              display-name-key="Labels_Name"
+              description-key="Labels_Desc"
+              of-type="Enum"
+              usage="input"
+              required="false"
+              default-value="auto">
+      <value name="auto" display-name-key="Labels_Auto">auto</value>
+      <value name="value" display-name-key="Labels_Value">value</value>
+      <value name="percent" display-name-key="Labels_Percent">percent</value>
+      <value name="none" display-name-key="Labels_None">none</value>
+    </property>
+
+    <!--
+      Whether the legend is drawn. `auto` shows one on a pie or donut, where
+      the slices carry no axis to be named on, and none on bars, columns or a
+      line, whose axis already names every group.
+    -->
+    <property name="legend"
+              display-name-key="Legend_Name"
+              description-key="Legend_Desc"
+              of-type="Enum"
+              usage="input"
+              required="false"
+              default-value="auto">
+      <value name="auto" display-name-key="Legend_Auto">auto</value>
+      <value name="show" display-name-key="Legend_Show">show</value>
+      <value name="hide" display-name-key="Legend_Hide">hide</value>
+    </property>
+
+    <!--
+      The heading over the chart. Blank, and the view's own name is used —
+      `dataset.getTitle()`, which is what the subgrid would have shown.
+    -->
+    <property name="title"
+              display-name-key="Title_Name"
+              description-key="Title_Desc"
+              of-type="SingleLine.Text"
+              usage="input"
+              required="false" />
+
+    <!--
+      The chart's height in pixels. A form section reports `allocatedHeight`
+      as -1 forever and a chart cannot size itself to its data the way a
+      list can, so the number has to come from somewhere. No default-value:
+      unset, the control uses 280, and the difference between "unset" and
+      "280" is what lets a later version change the default without
+      overriding every form that never touched it. The width is the
+      container's, measured with a ResizeObserver.
+    -->
+    <property name="height"
+              display-name-key="Height_Name"
+              description-key="Height_Desc"
+              of-type="Whole.None"
+              usage="input"
+              required="false" />
+
+    <!--
+      The group the user last clicked, as two outputs a canvas app can filter
+      a gallery on: the raw key (a Choice's integer, a Lookup's GUID, the text,
+      a date bucket as `2026-03`) and the label the chart showed. Clicking the
+      same group again clears both to the empty string — `null` would be
+      "no change" through the generated types, so the empty string is the
+      observable clear. Notified on click, before anything else happens, so
+      the value is observable on a host where nothing else does.
+    -->
+    <property name="selectedKey"
+              display-name-key="SelectedKey_Name"
+              description-key="SelectedKey_Desc"
+              of-type="SingleLine.Text"
+              usage="output" />
+
+    <property name="selectedLabel"
+              display-name-key="SelectedLabel_Name"
+              description-key="SelectedLabel_Desc"
+              of-type="SingleLine.Text"
+              usage="output" />
+
+    <resources>
+      <code path="index.ts" order="1" />
+      <css path="css/ChartView.css" order="1" />
+      <!--
+        Every language the control ships. THE ORDER IS DELIBERATE AND 1033
+        GOES LAST: `pcf-start` reads whichever .resx is listed last, so a new
+        language goes ABOVE the 1033 line. The platform resolves from the
+        user's language and ignores this order.
+      -->
+      <platform-library name="React" version="16.14.0" />
+      <platform-library name="Fluent" version="9.46.2" />
+      <resx path="strings/ChartView.3082.resx" version="1.0.0" />
+      <resx path="strings/ChartView.1036.resx" version="1.0.0" />
+      <resx path="strings/ChartView.1031.resx" version="1.0.0" />
+      <resx path="strings/ChartView.1041.resx" version="1.0.0" />
+      <resx path="strings/ChartView.1033.resx" version="1.0.0" />
+    </resources>
+
+    <!--
+      Both optional, and the control has a working route without either.
+
+      WebAPI is the server route: the whole view aggregated in one FetchXML
+      query, so the numbers are the view's and not the page's. Utility is
+      `getEntityMetadata`, which supplies a Choice's option colours and a
+      date column's behaviour. A host that declines either — canvas, or an
+      environment that refused the prompt — gets the browser route: the loaded
+      rows grouped on the client, the caption saying how many that was, and a
+      palette instead of the option colours. `required="false"` is what makes
+      the refusal a degraded chart rather than a control that will not load.
+    -->
+    <feature-usage>
+      <uses-feature name="WebAPI" required="false" />
+      <uses-feature name="Utility" required="false" />
+    </feature-usage>
+  </control>
+</manifest>
