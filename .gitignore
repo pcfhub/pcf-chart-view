@@ -19,3 +19,6 @@
 *.pcfproj.user
 *.cdsproj.user
 .release-notes-*.md
+
+# release notes, drafted for the tag body and kept out of the tree.
+/.release-notes.md
