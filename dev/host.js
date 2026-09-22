@@ -2291,10 +2291,28 @@
                  * column the fixture says nothing about — what a real node
                  * does for a column that is not a choice or a lookup.
                  */
-                utils: o.utils && o.host !== 'canvas'
+                utils: o.utils
                     ? {
                         getEntityMetadata: function (entityName, attributes) {
                             log('utils.getEntityMetadata', { entity: entityName, attributes: attributes });
+
+                            /*
+                             * **Canvas publishes `utils` and refuses to run
+                             * it, synchronously.** Measured on a real canvas
+                             * app, 2026-09-21. This rig omitted the object
+                             * there, which made it a friendlier host than the
+                             * platform and hid a crash: a control guarding with
+                             * `typeof … === 'function'` passes here and then
+                             * meets a throw in a real app.
+                             *
+                             * Thrown, not rejected — that distinction is the
+                             * whole defect. A rejection is catchable; a
+                             * synchronous throw escapes the call and takes the
+                             * lifecycle with it.
+                             */
+                            if (o.host === 'canvas') {
+                                throw new Error('getEntityMetadata: Method not implemented.');
+                            }
 
                             if (quirks.metadataRejects) {
                                 return Promise.reject(new Error('Metadata for ' + entityName + ' could not be read.'));
@@ -2380,9 +2398,21 @@
                  * `getClientUrl` is how a control finds the organisation for a
                  * metadata `fetch`; absent on canvas and under `page: false`.
                  */
-                page: o.page && o.host !== 'canvas'
+                page: o.page
                     ? {
                         getClientUrl: function () {
+                            /*
+                             * **Canvas publishes every surface and refuses on
+                             * the call**, thrown rather than rejected —
+                             * measured with the host probe on a real canvas
+                             * app, 2026-09-22. Omitting the object here made
+                             * this rig the opposite of the platform: a
+                             * `typeof` guard failed locally and passed there.
+                             */
+                            if (o.host === 'canvas') {
+                                throw new Error('getClientUrl: Method not implemented.');
+                            }
+
                             return CLIENT_URL;
                         },
                     }
@@ -2414,7 +2444,7 @@
                 // and is not available in canvas apps, whatever the manifest
                 // declares. A rig that could be told "canvas, with a Web API"
                 // would pass a control that works nowhere.
-                webAPI: o.webAPI && o.host !== 'canvas'
+                webAPI: o.webAPI
                     ? {
                         /**
                          * **The row arrives on the next fetch, not on the
@@ -2558,6 +2588,17 @@
                          * the control has to handle it either way.
                          */
                         retrieveMultipleRecords: function (entityType, options) {
+                            /*
+                             * **Canvas publishes every surface and refuses
+                             * on the call**, thrown rather than rejected —
+                             * measured 2026-09-22. Omitting the object made
+                             * this rig the opposite of the platform: a
+                             * `typeof` guard failed here and passed there.
+                             */
+                            if (o.host === 'canvas') {
+                                throw new Error('retrieveMultipleRecords: Method not implemented.');
+                            }
+
                             log('webAPI.retrieveMultipleRecords', entityType + ' ' + (options || ''));
 
                             if (o.webApiFails) {
@@ -2705,6 +2746,17 @@
                         },
 
                         retrieveRecord: function (entityType, id, options) {
+                            /*
+                             * **Canvas publishes every surface and refuses
+                             * on the call**, thrown rather than rejected —
+                             * measured 2026-09-22. Omitting the object made
+                             * this rig the opposite of the platform: a
+                             * `typeof` guard failed here and passed there.
+                             */
+                            if (o.host === 'canvas') {
+                                throw new Error('retrieveRecord: Method not implemented.');
+                            }
+
                             log('webAPI.retrieveRecord', entityType + ' ' + id + ' ' + (options || ''));
 
                             /*

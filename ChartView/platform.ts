@@ -26,14 +26,34 @@ export interface WebApiReader {
 }
 
 /** `context.webAPI` when it has both reads; `null` on canvas or a declined feature. */
+/**
+ * The Web API, or `null` on a host that cannot actually use one.
+ *
+ * **`typeof api.retrieveRecord === 'function'` is not that test.** Measured on
+ * a real canvas app, 2026-09-22: **every** platform surface is published there
+ * — all fifteen asked about — and the ones safe to call throw
+ * `Method not implemented.` from the call itself. So this guard passed on
+ * canvas, the server route was offered, and the aggregate query it exists for
+ * could only refuse.
+ *
+ * The discriminator that works is **an answer rather than a method**.
+ * `getClientUrl` refuses by throwing, and a thrown refusal is an answer once it
+ * is caught — which `lookupClientUrl` does. A host that names its organisation
+ * is one where these calls mean something.
+ *
+ * A model-driven host that publishes neither `page.getClientUrl` nor the `Xrm`
+ * global — the hub's demo harness — loses the server route and falls back to
+ * the browser one, with the caption saying so. That is the documented
+ * behaviour, not a regression.
+ */
 export function webApiOf(context: ComponentFramework.Context<IInputs>): WebApiReader | null {
     const api = (context as any).webAPI;
 
-    if (api && typeof api.retrieveRecord === 'function' && typeof api.retrieveMultipleRecords === 'function') {
-        return api as WebApiReader;
+    if (!api || typeof api.retrieveRecord !== 'function' || typeof api.retrieveMultipleRecords !== 'function') {
+        return null;
     }
 
-    return null;
+    return lookupClientUrl(context) === null ? null : (api as WebApiReader);
 }
 
 /** A `property-set` column, found by **alias**; read off the record by `name`. */
@@ -452,8 +472,25 @@ export function metadataLoader(context: ComponentFramework.Context<IInputs>, ent
         return null;
     }
 
+    /*
+     * **The executor, not `Promise.resolve`.** `Promise.resolve(f())` still
+     * evaluates `f()` synchronously, so a host that throws *from the call*
+     * throws straight through it — the promise is never created and there is
+     * nothing to `.catch`.
+     *
+     * Canvas is such a host: it publishes `utils` and answers
+     * `getEntityMetadata: Method not implemented.` from the call itself.
+     * Measured on a real canvas app against `pcf-data-table`, 2026-09-21, where
+     * the throw escaped the effect and the studio replaced the whole control
+     * with *Error loading control*. `typeof … === 'function'` above passes,
+     * because the method genuinely exists — existing is not working.
+     *
+     * A throw inside the executor rejects the promise instead of propagating,
+     * which turns a synchronous refusal into the asynchronous one the `.then`
+     * chain and its caller were already written for.
+     */
     return (): Promise<MetadataReading> =>
-        Promise.resolve(utils.getEntityMetadata(entity, [column]))
+        new Promise<any>((resolve) => resolve(utils.getEntityMetadata(entity, [column])))
             .then((metadata: any) => {
                 const attributes = metadata?.Attributes;
                 const node = attributes && typeof attributes.get === 'function' ? attributes.get(column) : undefined;

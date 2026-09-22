@@ -115,8 +115,22 @@ export async function resolveParentLookup(parent: ParentReading): Promise<Parent
 /**
  * The rows' answer for one column: every loaded record's lookup is the
  * form's record. `getValue` on a lookup is an `EntityReference` —
- * `{ id: { guid }, etn, name }` measured — read leniently, and a column the
- * dataset does not carry answers `null` rather than `false`.
+ * `{ id: { guid }, etn, name }` measured — read leniently.
+ *
+ * **A column the dataset does not carry must answer `null` rather than `false`,
+ * and this function cannot tell.** `getValue` returns `null` for an unfetched
+ * column, a non-existent one and a genuinely empty one alike — measured on a
+ * real form, 2026-09-21 — so a column the view never selected would deny every
+ * candidate and the resolver would conclude "unrelated" about a subgrid that is
+ * related. The guard is therefore the **caller's**: `index.ts` checks
+ * `dataset.columns` before asking, and the comment beside it says so.
+ *
+ * This comment used to claim the guarantee as if it were made here, which read
+ * as a defect on a later pass and cost a round of investigation.
+ * `pcf-data-table` takes the fetched-column list as a parameter instead, so the
+ * guard cannot be forgotten by a future caller; that is the better shape, and
+ * the only reason it is not adopted here is that this call site is correct and
+ * a shipped control is not worth churning for symmetry.
  */
 export function rowsConfirm(records: { getValue(name: string): unknown }[], column: string, id: string): boolean | null {
     if (records.length === 0) {

@@ -52,8 +52,22 @@ export function readViewFetchXml(api: WebApiReader, viewId: string): Promise<str
         return cached;
     }
 
+    /*
+     * **The executor, not a bare call.** A host can publish `retrieveRecord`
+     * and refuse it *synchronously* — canvas answers
+     * `retrieveRecord: Method not implemented.` from the call itself, measured
+     * 2026-09-22. A synchronous throw is not a rejection: it never reaches the
+     * `.catch` below, it escapes this function and the effect that called it,
+     * and the chart is replaced by the host's error.
+     *
+     * `webApiOf` should have withheld the route before it got here. This is the
+     * second layer, because one guard between a refusing host and a dead
+     * control is not enough.
+     */
     const read = (table: string): Promise<string | null> =>
-        api.retrieveRecord(table, viewId, '?$select=fetchxml').then((row) => {
+        new Promise<{ fetchxml?: unknown }>((resolve) => resolve(
+            api.retrieveRecord(table, viewId, '?$select=fetchxml'),
+        )).then((row) => {
             const xml = row?.fetchxml;
             return typeof xml === 'string' && xml.indexOf('<fetch') !== -1 ? xml : null;
         });

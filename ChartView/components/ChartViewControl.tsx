@@ -354,7 +354,23 @@ export const ChartViewControl: React.FC<IProps> = (props) => {
         props.onSelect(group.key, group.label);
     };
 
-    const legendW = showLegend && !narrow ? Math.min(220, Math.max(120, Math.floor(width * 0.3))) : 0;
+    /*
+     * **The legend's share of the width, and it used to stop growing at
+     * 220px.** On a control 1,868 pixels wide the legend was still 220 — a
+     * seventh of the space — so every label longer than about fourteen
+     * characters was truncated beside an acre of empty chart. Reported from a
+     * canvas app, 2026-09-22, where labels like *Negotiated Price* lost their
+     * ends with room to spare on either side.
+     *
+     * Still a share rather than "as much as it needs": the chart is the point,
+     * and a legend free to take half of a wide control would be a worse answer
+     * than a truncated label. 30% with a 400px ceiling gives a long label its
+     * full width on any ordinary control and still leaves the chart the larger
+     * half.
+     */
+    const legendW = showLegend && !narrow
+        ? Math.min(400, Math.max(120, Math.floor(width * 0.3)))
+        : 0;
     const svgW = Math.max(0, width - legendW - (legendW > 0 ? 12 : 0));
     const svgH = settings.height;
 

@@ -704,6 +704,53 @@ check('the primary key is <table>id, except for the activity tables', P.primaryI
 
 const FORMATTED = '@OData.Community.Display.V1.FormattedValue';
 
+async function canvasChecks() {
+    /*
+     * **A synchronous refusal has to arrive as a rejection.** Canvas throws
+     * `getEntityMetadata` from the call itself, not as a rejected promise — so
+     * `Promise.resolve(utils.getEntityMetadata(...))` does not help: it
+     * evaluates the call first and the throw goes straight through it. The
+     * throw then escapes the effect that loads metadata and the studio replaces
+     * the whole chart with *Error loading control*.
+     *
+     * This has to **call** the loader. A rendering assertion never invokes it
+     * and passes against the broken control.
+     */
+    /*
+     * Built from `metadataLoader` directly rather than read off the canvas
+     * props, because a bare canvas bind resolves no category role and so
+     * legitimately has no loader at all — which would make this assertion pass
+     * without ever reaching the code it is about.
+     */
+    const loader = P.metadataLoader(canvas.handle.context, 'account', 'industrycode');
+    let threw = false;
+    let reading = null;
+
+    if (typeof loader === 'function') {
+        try {
+            reading = await loader();
+        } catch {
+            threw = true;
+        }
+    }
+
+    /*
+     * The loader's own `.catch` already turns a failure into an empty reading;
+     * the defect was that a *synchronous* throw happened before the promise
+     * existed, so that `.catch` never saw it and the throw escaped instead.
+     * The fix is therefore visible as "this resolves at all".
+     */
+    check(
+        'a canvas metadata refusal reaches the loader catch instead of escaping it',
+        typeof loader === 'function' && !threw && reading !== null && reading.colors.size === 0,
+        typeof loader !== 'function'
+            ? 'no loader built — the assertion never reached the call'
+            : threw
+                ? 'threw out of the call — this kills the control'
+                : 'resolved to an empty reading',
+    );
+}
+
 async function rigChecks() {
     const ctx = host.createHost(fixture, {}).context;
 
@@ -867,7 +914,17 @@ check('selecting it again clears both to the empty string, not undefined', first
 
 const canvas = bind({ host: 'canvas' });
 
-check('a canvas host has no server route, no metadata, and the readings stand', propsOf(canvas).server === null && propsOf(canvas).readings.length === 5 && propsOf(canvas).metadata === null);
+/*
+ * **Canvas offers the metadata loader and then refuses it.** It publishes
+ * `utils` and answers `getEntityMetadata: Method not implemented.` from the
+ * call — measured on a real canvas app, 2026-09-21 — so the loader is a
+ * function rather than `null`, and the refusal arrives when it is used.
+ *
+ * Asserted on the readings, which are what a reader sees, rather than on the
+ * loader being absent: the loader was only ever a means to "no colours from
+ * metadata", and the host reaches that by refusing instead of by omitting.
+ */
+check('a canvas host has no server route and the readings still stand', propsOf(canvas).server === null && propsOf(canvas).readings.length === 5);
 
 check('and renders', typeof renderDeep(canvas.driven.element) === 'string');
 
@@ -1109,6 +1166,44 @@ const legendOut = renderDeep(React.createElement(Components.Legend, { data: char
 
 check('the legend is a button per group with swatch, label, value and share', (legendOut.match(/ChartView-legendButton/g) || []).length === chartData.groups.length && legendOut.indexOf('ChartView-swatch') !== -1);
 
+/*
+ * **The legend has to grow with the control.** It was capped at 220px, so on a
+ * control 1,868 pixels wide the legend was still 220 — a seventh of the space —
+ * and every label longer than about fourteen characters was truncated next to
+ * an empty half-chart. Reported from a canvas app, 2026-09-22.
+ *
+ * The share is read off the rendered inline width rather than by exporting the
+ * arithmetic: what matters is the number the legend is actually drawn at.
+ */
+const legendWidthAt = (allocated) => {
+    const out = renderDeep(React.createElement(Components.ChartViewControl, {
+        ...propsOf(first),
+        allocatedWidth: allocated,
+        settings: { ...propsOf(first).settings, chartType: 'pie', legend: 'show' },
+    }));
+    const found = out.match(/class="ChartView-legend"[^>]*style="width:\s*(\d+)px/);
+
+    return found ? Number(found[1]) : null;
+};
+
+check(
+    'the legend grows with a wide control rather than stopping at 220px',
+    legendWidthAt(1600) > 220,
+    `${legendWidthAt(1600)}px at an allocated 1600`,
+);
+
+check(
+    'and still leaves the chart the larger share',
+    legendWidthAt(1600) !== null && legendWidthAt(1600) <= Math.floor(1600 * 0.3),
+    `${legendWidthAt(1600)}px of 1600`,
+);
+
+check(
+    'while a narrow control keeps its floor',
+    legendWidthAt(420) !== null && legendWidthAt(420) >= 120,
+    `${legendWidthAt(420)}px at an allocated 420`,
+);
+
 const tableOut = renderDeep(React.createElement(Components.DataTable, { data: chartData, roles: propsOf(first).roles, measure: 'Count', formatValue: (v) => String(v), getString: strings }));
 
 check('the screen-reader table has a row per group under the category heading', (tableOut.match(/<tr>/g) || []).length === chartData.groups.length + 1 && tableOut.indexOf('Industry') !== -1);
@@ -1138,7 +1233,7 @@ check('and re-rendering does not add another one', time.pending() === afterFirst
 
 disposeAll();
 
-rigChecks().then(parentChecks).then(report, (error) => {
+rigChecks().then(canvasChecks).then(parentChecks).then(report, (error) => {
     check('the asynchronous rig checks ran at all', false, String((error && error.stack) || error));
     report();
 });
