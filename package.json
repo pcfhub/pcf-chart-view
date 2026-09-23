@@ -1,7 +1,7 @@
 {
   "name": "pcf-chart-view",
   "version": "0.1.5",
-  "description": "A Dataverse view as a bar, column, pie, donut or line chart \u2014 grouped by a column, aggregated on the server.",
+  "description": "A Dataverse view as a bar, column, pie, donut or line chart — grouped by a column, aggregated on the server.",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -15,7 +15,9 @@
     "refreshTypes": "pcf-scripts refreshTypes",
     "smoke": "node dev/smoke.js",
     "harness": "node dev/serve.js",
-    "lint": "eslint ChartView --ext .ts,.tsx"
+    "lint": "eslint ChartView --ext .ts,.tsx",
+    "bump": "node scripts/version.mjs",
+    "release": "node scripts/release.mjs"
   },
   "devDependencies": {
     "@fluentui/react-components": "9.46.2",
