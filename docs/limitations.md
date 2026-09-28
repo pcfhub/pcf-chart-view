@@ -74,7 +74,8 @@ Each of these was chosen, not left.
   accessible name. Switch to *Bar* for long labels: they run beside the bar
   with a third of the width to themselves.
 
-- **The hub's demo runs the browser route.** The harness has no Web API and
-  no metadata, so the demo groups its fixture in the browser and colours it
-  from the palette — the canvas experience. The server route is on the
-  form.
+- **The hub's demo runs the browser route.** Its stand-in Dataverse has no
+  views and answers no FetchXML, so the server route's aggregate is refused and
+  the demo groups its fixture in the browser — the canvas experience. The
+  server route is on the form. The option colours and order are the form's
+  own, read from the stand-in's metadata.

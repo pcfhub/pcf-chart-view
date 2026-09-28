@@ -196,10 +196,31 @@ parent sizes itself. Asserted in the suite (156).
 
 ## Demo
 
-`limited`, and the limitations block says why: the harness has no Web API,
-so the demo is the browser route over the fixture, and no metadata, so the
-palette stands in for the option colours. The fixture's Industry column holds
-labels rather than option values because a fixture record cannot carry both.
+`limited`, now for one reason: the server route cannot run.
+
+pcfhub/pcfhub#52 let a fixture describe its columns. `demo/records.json`
+carries a stand-in Dataverse:
+
+- Industry and Status are stored as option values, with their options
+  described (Industry with a colour each);
+- Owner is a `_ownerid_value` into a two-row `systemuser` table. A stand-in
+  reads every lookup column as a reference, so the plain names it held would
+  have read as empty.
+
+It was checked with 0.1.5's published bundle against that harness, before the
+push:
+
+- every group took its option's colour, and *(blank)* the neutral grey;
+- *Bars in the category's own order* ran Retail, Manufacturing, Technology,
+  Services, Healthcare: the options' order, where the text labels had sorted
+  alphabetically;
+- counts and sums matched the fixture ("All 16 records").
+
+The server route asks `webAPI.retrieveRecord` for the view (`savedquery`, then
+`userquery`). The stand-in has neither table, so both are refused, the event
+log shows them as warnings, and the chart falls back to the browser route.
+That fallback is the one a canvas app takes, and with 16 rows on one page its
+numbers are the server's.
 
 ## Not verified
 

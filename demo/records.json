@@ -66,11 +66,11 @@
             "values": {
                 "name": "Fabrikam Manufacturing",
                 "accountnumber": "ACC-1040",
-                "statecode": "Active",
-                "industrycode": "Manufacturing",
-                "ownerid": "Sam Vaziri",
+                "statecode": 0,
+                "industrycode": 2,
                 "revenue": 1250000,
-                "createdon": "2026-01-12T12:00:00"
+                "createdon": "2026-01-12T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e61"
             }
         },
         {
@@ -78,11 +78,11 @@
             "values": {
                 "name": "Contoso Logistics",
                 "accountnumber": "ACC-1047",
-                "statecode": "Active",
-                "industrycode": "Manufacturing",
-                "ownerid": "Jo Park",
+                "statecode": 0,
+                "industrycode": 2,
                 "revenue": 480000,
-                "createdon": "2026-01-28T12:00:00"
+                "createdon": "2026-01-28T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e62"
             }
         },
         {
@@ -90,11 +90,11 @@
             "values": {
                 "name": "Northwind Traders",
                 "accountnumber": "ACC-1054",
-                "statecode": "Active",
-                "industrycode": "Technology",
-                "ownerid": "Sam Vaziri",
+                "statecode": 0,
+                "industrycode": 3,
                 "revenue": 92000,
-                "createdon": "2026-02-03T12:00:00"
+                "createdon": "2026-02-03T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e61"
             }
         },
         {
@@ -102,11 +102,11 @@
             "values": {
                 "name": "Adventure Works Cycles",
                 "accountnumber": "ACC-1061",
-                "statecode": "Active",
-                "industrycode": "Retail",
-                "ownerid": "Jo Park",
+                "statecode": 0,
+                "industrycode": 1,
                 "revenue": 730000,
-                "createdon": "2026-02-17T12:00:00"
+                "createdon": "2026-02-17T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e62"
             }
         },
         {
@@ -114,11 +114,11 @@
             "values": {
                 "name": "Litware Consulting",
                 "accountnumber": "ACC-1068",
-                "statecode": "Active",
-                "industrycode": "Manufacturing",
-                "ownerid": "Sam Vaziri",
+                "statecode": 0,
+                "industrycode": 2,
                 "revenue": 150000,
-                "createdon": "2026-02-24T12:00:00"
+                "createdon": "2026-02-24T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e61"
             }
         },
         {
@@ -126,11 +126,11 @@
             "values": {
                 "name": "Tailspin Toys",
                 "accountnumber": "ACC-1075",
-                "statecode": "Active",
-                "industrycode": "Technology",
-                "ownerid": "Jo Park",
+                "statecode": 0,
+                "industrycode": 3,
                 "revenue": 61000,
-                "createdon": "2026-03-05T12:00:00"
+                "createdon": "2026-03-05T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e62"
             }
         },
         {
@@ -138,11 +138,11 @@
             "values": {
                 "name": "Proseware Systems",
                 "accountnumber": "ACC-1082",
-                "statecode": "Active",
-                "industrycode": "Services",
-                "ownerid": "Sam Vaziri",
+                "statecode": 0,
+                "industrycode": 4,
                 "revenue": 2100000,
-                "createdon": "2026-03-11T12:00:00"
+                "createdon": "2026-03-11T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e61"
             }
         },
         {
@@ -150,11 +150,11 @@
             "values": {
                 "name": "Wingtip Analytics",
                 "accountnumber": "ACC-1089",
-                "statecode": "Active",
-                "industrycode": "Manufacturing",
-                "ownerid": "Jo Park",
+                "statecode": 0,
+                "industrycode": 2,
                 "revenue": 405000,
-                "createdon": "2026-03-19T12:00:00"
+                "createdon": "2026-03-19T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e62"
             }
         },
         {
@@ -162,11 +162,11 @@
             "values": {
                 "name": "Blue Yonder Airlines",
                 "accountnumber": "ACC-1096",
-                "statecode": "Active",
-                "industrycode": "Retail",
-                "ownerid": "Sam Vaziri",
+                "statecode": 0,
+                "industrycode": 1,
                 "revenue": null,
-                "createdon": "2026-03-27T12:00:00"
+                "createdon": "2026-03-27T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e61"
             }
         },
         {
@@ -174,11 +174,11 @@
             "values": {
                 "name": "Consolidated Messenger",
                 "accountnumber": "ACC-1103",
-                "statecode": "Active",
-                "industrycode": "Technology",
-                "ownerid": "Jo Park",
+                "statecode": 0,
+                "industrycode": 3,
                 "revenue": 3300000,
-                "createdon": "2026-04-02T12:00:00"
+                "createdon": "2026-04-02T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e62"
             }
         },
         {
@@ -186,11 +186,11 @@
             "values": {
                 "name": "Woodgrove Bank",
                 "accountnumber": "ACC-1110",
-                "statecode": "Active",
-                "industrycode": "Healthcare",
-                "ownerid": "Sam Vaziri",
+                "statecode": 0,
+                "industrycode": 5,
                 "revenue": 15000,
-                "createdon": "2026-04-15T12:00:00"
+                "createdon": "2026-04-15T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e61"
             }
         },
         {
@@ -198,11 +198,11 @@
             "values": {
                 "name": "Alpine Ski House",
                 "accountnumber": "ACC-1117",
-                "statecode": "Active",
-                "industrycode": "Manufacturing",
-                "ownerid": "Jo Park",
+                "statecode": 0,
+                "industrycode": 2,
                 "revenue": 88000,
-                "createdon": "2026-05-06T12:00:00"
+                "createdon": "2026-05-06T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e62"
             }
         },
         {
@@ -210,11 +210,11 @@
             "values": {
                 "name": "Coho Winery",
                 "accountnumber": "ACC-1124",
-                "statecode": "Active",
-                "industrycode": "Technology",
-                "ownerid": "Sam Vaziri",
+                "statecode": 0,
+                "industrycode": 3,
                 "revenue": 540000,
-                "createdon": "2026-05-20T12:00:00"
+                "createdon": "2026-05-20T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e61"
             }
         },
         {
@@ -222,11 +222,11 @@
             "values": {
                 "name": "Fourth Coffee",
                 "accountnumber": "ACC-1131",
-                "statecode": "Active",
-                "industrycode": "Retail",
-                "ownerid": "Jo Park",
+                "statecode": 0,
+                "industrycode": 1,
                 "revenue": 210000,
-                "createdon": "2026-06-01T12:00:00"
+                "createdon": "2026-06-01T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e62"
             }
         },
         {
@@ -234,11 +234,11 @@
             "values": {
                 "name": "Lucerne Publishing",
                 "accountnumber": "ACC-1138",
-                "statecode": "Active",
-                "industrycode": "Services",
-                "ownerid": "Sam Vaziri",
+                "statecode": 0,
+                "industrycode": 4,
                 "revenue": 97000,
-                "createdon": "2026-06-14T12:00:00"
+                "createdon": "2026-06-14T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e61"
             }
         },
         {
@@ -246,12 +246,93 @@
             "values": {
                 "name": "Margie's Travel",
                 "accountnumber": "ACC-1145",
-                "statecode": "Active",
+                "statecode": 0,
                 "industrycode": null,
-                "ownerid": "Jo Park",
                 "revenue": 132000,
-                "createdon": "2026-06-30T12:00:00"
+                "createdon": "2026-06-30T12:00:00",
+                "_ownerid_value": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e62"
             }
         }
-    ]
+    ],
+    "dataverse": {
+        "tables": {
+            "account": {
+                "entitySet": "accounts",
+                "primaryId": "accountid",
+                "primaryName": "name",
+                "columns": {
+                    "industrycode": {
+                        "options": [
+                            {
+                                "value": 1,
+                                "label": "Retail",
+                                "color": "#0f6cbd"
+                            },
+                            {
+                                "value": 2,
+                                "label": "Manufacturing",
+                                "color": "#c239b3"
+                            },
+                            {
+                                "value": 3,
+                                "label": "Technology",
+                                "color": "#107c10"
+                            },
+                            {
+                                "value": 4,
+                                "label": "Services",
+                                "color": "#ca5010"
+                            },
+                            {
+                                "value": 5,
+                                "label": "Healthcare",
+                                "color": "#8764b8"
+                            }
+                        ]
+                    },
+                    "statecode": {
+                        "options": [
+                            {
+                                "value": 0,
+                                "label": "Active"
+                            },
+                            {
+                                "value": 1,
+                                "label": "Inactive"
+                            }
+                        ]
+                    }
+                }
+            },
+            "systemuser": {
+                "entitySet": "systemusers",
+                "primaryId": "systemuserid",
+                "primaryName": "fullname",
+                "rows": [
+                    {
+                        "id": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e61",
+                        "values": {
+                            "fullname": "Sam Vaziri"
+                        }
+                    },
+                    {
+                        "id": "4d1f3c2a-7b1e-4c6d-9a3f-1e2b3c4d5e62",
+                        "values": {
+                            "fullname": "Jo Park"
+                        }
+                    }
+                ]
+            }
+        },
+        "relationships": [
+            {
+                "kind": "oneToMany",
+                "schemaName": "user_accounts",
+                "referencedEntity": "systemuser",
+                "referencingEntity": "account",
+                "referencingAttribute": "ownerid",
+                "referencingNavigationProperty": "ownerid"
+            }
+        ]
+    }
 }

@@ -37,9 +37,9 @@
     "styles": ["out/controls/ChartView/css/ChartView.css"],
     "datasetFixture": "demo/records.json",
     "limitations": [
-      "The harness has no Web API, so the server route — one aggregate over the whole view — never runs here; the chart groups the fixture's rows in the browser, which is the same route a canvas app takes. The caption says so.",
-      "The harness has no metadata, so a Choice's option colours are not read; the chart uses its own palette. On a model-driven form the option colours from the column's option set win.",
-      "The fixture's Industry column holds its labels rather than its option values, because a fixture record cannot carry both. The chart keys and labels by the text it is given, which is what a text category does on a form.",
+      "The server route — one aggregate over the whole view — cannot run here. It reads the view's own definition (savedquery, or userquery for a personal view) and sends one FetchXML aggregate; the demo's stand-in Dataverse has no views and answers no FetchXML, so both reads are refused, as the event log shows, and the chart groups the fixture's rows in the browser, the route a canvas app takes. With sixteen rows on one page the numbers are the same a server would return.",
+      "Industry's colours come from its options, which the stand-in Dataverse describes with a colour each, read through getEntityMetadata as on a model-driven form; the blank group takes a neutral grey. Sorting by label follows the options' own order — the order the maker gave them — which Bars in the category's own order shows.",
+      "The fixture holds Industry as option values, as Dataverse does, and the chart labels each group from the options.",
       "Clicking a group sets the two outputs, which the harness shows in its property panel; nothing on the demo page consumes them."
     ],
     "presets": [
@@ -65,7 +65,7 @@
       {
         "slug": "bar-by-label",
         "name": "Bars in the category's own order",
-        "description": "Horizontal bars sorted by label rather than by size, values written beside them.",
+        "description": "Horizontal bars in the category's own order rather than by size — for a choice, the order the maker gave its options — with values written beside them.",
         "props": { "chartType": "bar", "aggregate": "count", "dateGrouping": "month", "sortBy": "label", "valueLabels": "value", "legend": "hide", "title": "" }
       }
     ]

@@ -71,12 +71,23 @@ and the palette rather than refusing to load.
 
 ## On the hub
 
-`demo.fidelity` is **limited**: the hub's harness has no Web API, so the demo
-is the browser route over the fixture — the canvas experience — and no
-metadata, so the palette stands in for a Choice's option colours. The
-limitations block says both. Four presets: a count by industry as columns,
-revenue summed as a pie with a legend, the top three as a donut with *Other*,
-and horizontal bars in the category's own order.
+`demo.fidelity` is **limited**, for one reason: the server route cannot run.
+
+`demo/records.json` carries a stand-in Dataverse since pcfhub/pcfhub#52. It
+has no views and answers no FetchXML, so the view's definition is refused
+and the demo is the browser route over the fixture: the canvas experience.
+
+What the stand-in does answer is the column's metadata. Industry is stored as
+option values, and its options each have a colour. So, as on a model-driven
+form:
+- each group takes its option's colour;
+- sorting by label follows the options' own order.
+
+Four presets:
+- a count by industry as columns;
+- revenue summed as a pie with a legend;
+- the top three as a donut with *Other*;
+- horizontal bars in the category's own order.
 
 ## Install
 
