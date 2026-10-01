@@ -4,6 +4,7 @@
   "slug": "pcf-chart-view",
   "name": "Chart View",
   "tagline": "A Dataverse view as a bar, column, pie, donut or line chart — grouped by a column, aggregated on the server.",
+  "summary": "Draws a Dataverse view as a column, bar, pie, donut or line chart on a form, a main grid or a canvas screen: one mark per distinct value of the column you group by, counting the records in each group or adding up a number column.\n\n- On a model-driven app the numbers come from one aggregate over the whole view, not the loaded page, and the caption says which\n- Groups by a choice, yes/no, lookup or text column, or by a date bucketed by day, week, month, quarter or year\n- Pressing a bar or a slice reports the group that was clicked as an output",
   "category": "data",
   "hosts": ["canvas", "model-driven"],
   "tags": ["react", "chart", "pie", "bar", "line", "aggregate", "fetchxml", "accessible"],
