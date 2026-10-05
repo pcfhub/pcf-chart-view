@@ -11,6 +11,10 @@ value of a column you choose, counting the records in each group or adding
 up a number column across them. Columns, bars, pie, donut or line, on a form,
 a main grid or a canvas screen.
 
+:::callout{type=warning}
+**Reference example · built with AI.** This control was written with AI (Claude) and tested on a live Dataverse form; its code has not been reviewed line by line. It is published as a worked example and is not maintained — read the source and [SPEC.md](https://github.com/pcfhub/pcf-chart-view/blob/main/SPEC.md) (what was measured on the form) before you use it. Fixes are not guaranteed.
+:::
+
 ::image{src=media/screenshot-column.png alt="Active accounts counted by industry, as columns with the count on each" zoom}
 
 ::image{src=media/screenshot-pie.png alt="Annual revenue summed by industry, as a pie with a legend of values and shares" zoom}

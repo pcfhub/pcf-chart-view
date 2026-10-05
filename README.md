@@ -2,6 +2,8 @@
 
 A Dataverse view as a bar, column, pie, donut or line chart — grouped by a column, aggregated on the server.
 
+> **Reference example · built with AI.** This control was written with AI (Claude) and tested on a live Dataverse form; its code has not been reviewed line by line. It is published as a worked example and is not maintained — read the source and [`SPEC.md`](SPEC.md) (what was measured on the form) before you use it. Fixes are not guaranteed.
+
 [![Build](https://github.com/pcfhub/pcf-chart-view/actions/workflows/build.yml/badge.svg)](https://github.com/pcfhub/pcf-chart-view/actions/workflows/build.yml)
 [![Release](https://github.com/pcfhub/pcf-chart-view/actions/workflows/release.yml/badge.svg)](https://github.com/pcfhub/pcf-chart-view/actions/workflows/release.yml)
 

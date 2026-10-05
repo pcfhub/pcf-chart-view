@@ -8,6 +8,8 @@
   "category": "data",
   "hosts": ["canvas", "model-driven"],
   "tags": ["react", "chart", "pie", "bar", "line", "aggregate", "fetchxml", "accessible"],
+  "supportLevel": "reference",
+  "builtWith": "ai",
 
   "control": {
     "namespace": "PCFHub",
