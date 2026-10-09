@@ -43,7 +43,7 @@ to the questions below under `[ChartView probe]`, once per distinct payload,
 and the component logs the query it sent and the first five rows it got
 back. **Tag 0.1.0 only after the answers**; each row names what it decides.
 
-**Environment:** the Accounts form on `cll365`, the Contacts subgrid on
+**Environment:** the Accounts form on the test environment, the Contacts subgrid on
 *City Power & Light (sample)* bound to *Group by* = a Choice on contact
 (e.g. `preferredcontactmethodcode`), and the Accounts **main grid** on
 *Active Accounts* bound to *Group by* = `industrycode`, *Value* = `revenue`.
