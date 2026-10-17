@@ -240,11 +240,14 @@ export const CONDITION_OPERATORS: Record<number, string> = {
     70: 'in-fiscal-period-and-year',
     73: 'eq-userteams',
     74: 'eq-useroruserteams',
-    75: 'under',
-    76: 'not-under',
-    77: 'eq-or-under',
-    78: 'above',
-    79: 'eq-or-above',
+    // 75–79 are the dataset's numbering, not the SDK's: measured 2026-10-17
+    // (pcf-data-table SPEC.md 0.8.0, P2) — 79 is eq-or-under. This table had
+    // them the SDK's way until then; nothing had sent them.
+    75: 'above',
+    76: 'under',
+    77: 'not-under',
+    78: 'eq-or-above',
+    79: 'eq-or-under',
     87: 'contain-values',
     88: 'not-contain-values',
 };
